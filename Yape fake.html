@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Comprobante Yape Fake</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+    apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
+    authDomain: "transferencia-88fd7.firebaseapp.com",
+    databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
+    projectId: "transferencia-88fd7",
+    storageBucket: "transferencia-88fd7.firebasestorage.app",
+    messagingSenderId: "343352831024",
+    appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
+    measurementId: "G-LNX1B0RLK7"
+  };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <link rel="icon" href="3440119_ico.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#121212" />
+  <link rel="icon" type="image/png" href="3440119_ico.png">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="¡Únete a Transferencia VIP y gana créditos!" />
+  <meta property="og:description" content="Regístrate con este enlace de referido y recibe hasta 10 créditos gratis. Empieza a ganar hoy." />
+  <meta property="og:image" content="https://transferenciavip.xyz/3440119_ico.png" />
+  <meta property="og:url" content="https://transferenciavip.xyz" />
+  <meta property="og:type" content="website" />
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="¡Gana créditos con Transferencia VIP!" />
+  <meta name="twitter:description" content="Regístrate con un referido y recibe bonificaciones instantáneas." />
+  <meta name="twitter:image" content="https://transferenciavip.xyz/3440119_ico.png" />
+  
+   <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #650D89;
+      color: #000;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      padding: 15px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      background-color: #ffc107;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .mensaje {
+      color: white;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .logo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .logo img {
+      height: 40px;
+    }
+    .cerrar {
+      width: 35px;
+      height: 35px;
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      text-align: center;
+      line-height: 35px;
+      cursor: pointer;
+    }
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+    .card h2 {
+      color: #650D89;
+      font-size: 18px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .monto {
+      font-size: 30px;
+      margin: 5px 0;
+      font-weight: bold;
+    }
+    .nombre {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .datos {
+      font-size: 14px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .transaccion-title {
+      font-size: 13px;
+      color: gray;
+      font-weight: bold;
+      margin-bottom: 8px;
+      margin-top: 5px;
+    }
+    .info {
+      font-size: 13px;
+      color: gray;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+    .info p {
+      margin: 5px 0;
+    }
+    .info p span {
+      float: right;
+      font-weight: bold;
+      color: #000;
+    }
+    .share {
+      color: #00bfa5;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .footer-img {
+      width: 100%;
+      border-radius: 15px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="mensaje" id="mensajeBienvenida">¡Bienvenido! Genera tu comprobante de Yape fake fácilmente.</div>
+  <div class="mensaje" id="mensajeBienvenida">costo de créditos: 6 creditos 🪙.</div>
+  <div id="formulario">
+    <input type="text" id="numero" placeholder="Número de celular" required>
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="number" id="monto" placeholder="Monto (S/.)" required>
+    <select id="destino" required>
+      <option value="">Selecciona destino</option>
+      <option value="Yape">Yape</option>
+      <option value="Plin">Plin</option>
+      <option value="Agora">Agora</option>
+    </select>
+    <div class="g-recaptcha" data-sitekey="6LcXu4IrAAAAAKC8vZ5ALC0BeHZRqeA25RTkX1sI"></div>
+    <button onclick="validarYGenerar()">Generar</button>
+    <div class="mensaje" id="mensaje"></div>
+  </div>
+  <div id="comprobante" style="display: none;">
+    <div style="padding: 15px; background-color: #650D89;">
+      <div class="logo">
+        <img src="YAPE.svg" alt="Yape">
+        <div class="cerrar" onclick="cerrarComprobante()">×</div>
+      </div>
+      <div class="card" id="comprobanteCard">
+        <h2>¡Yapeaste! <span class="share" onclick="mostrarModal()">COMPARTIR</span></h2>
+        <div class="monto" id="verMonto">S/0</div>
+        <div class="nombre" id="verNombre">Nombre</div>
+        <div class="datos" id="verFechaHora">📅 fecha | 🕐 hora</div>
+        <div style="border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 10px 0; margin: 20px 0;">
+          <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; color: #000;">
+            <div>CÓDIGO DE SEGURIDAD</div>
+            <div id="verCodigo">000</div>
+          </div>
+        </div>
+        <div class="transaccion-title">Datos de la transacción</div>
+        <div class="info">
+          <p>Nro. de celular <span id="verNumero">*** ***000</span></p>
+          <p>Destino <span id="verDestino">Yape</span></p>
+          <p>Nro. de operación <span id="operacionId">00000000</span></p>
+        </div>
+      </div>
+      <img class="footer-img" src="yape.jpg" alt="Promoción">
+    </div>
+  </div>
+</div>
+<script>
+function validarYGenerar() {
+  const response = grecaptcha.getResponse();
+  if (response.length === 0) {
+    alert("Por favor, completa el reCAPTCHA.");
+    return;
+  }
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Debes iniciar sesión para continuar.");
+    return;
+  }
+  const uid = user.uid;
+  const db = firebase.database();
+  db.ref(`usuarios/${uid}/comisionesTotales`).once('value').then(snapshot => {
+    let saldo = parseFloat(snapshot.val()) || 0;
+    if (saldo < 6) {
+      alert("❌ No tienes créditos suficientes. Necesitas al menos 6.");
+      return;
+    }
+    const nuevoSaldo = saldo - 6;
+    db.ref(`usuarios/${uid}/comisionesTotales`).set(nuevoSaldo).then(() => {
+      generarComprobante();
+    }).catch(err => {
+      console.error("Error al descontar créditos:", err);
+      alert("Hubo un error al descontar los créditos.");
+    });
+  });
+}
+function generarComprobante() {
+  const numero = document.getElementById('numero').value.trim();
+  const nombre = document.getElementById('nombre').value.trim();
+  const monto = document.getElementById('monto').value.trim();
+  const destino = document.getElementById('destino').value;
+  if (!numero || !nombre || !monto || !destino) {
+    alert("Por favor, completa todos los campos.");
+    return;
+  }
+  document.getElementById('mensaje').innerText = "Generando datos...";
+  setTimeout(() => {
+    const now = new Date();
+    const fecha = now.toLocaleDateString('es-PE', { day: 'numeric', month: 'short', year: 'numeric' });
+    const hora = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    const codigo = Math.floor(100 + Math.random() * 900);
+    const operacion = Math.floor(10000000 + Math.random() * 90000000);
+    document.getElementById('verMonto').innerText = `S/${parseFloat(monto).toFixed(2)}`;
+    document.getElementById('verNombre').innerText = nombre;
+    document.getElementById('verFechaHora').innerText = `${fecha} | ${hora}`;
+    document.getElementById('verCodigo').innerText = codigo;
+    document.getElementById('verNumero').innerText = `*** ***${numero.slice(-3)}`;
+    document.getElementById('operacionId').innerText = operacion;
+    document.getElementById('verDestino').innerText = destino;
+    document.getElementById('mensajeBienvenida').style.display = "none";
+    document.getElementById('formulario').style.display = "none";
+    document.getElementById('comprobante').style.display = "block";
+  }, 1000);
+}
+function cerrarComprobante() {
+  document.getElementById('comprobante').style.display = "none";
+  document.getElementById('formulario').style.display = "block";
+  document.getElementById('mensajeBienvenida').style.display = "block";
+}
+</script>
+</body>
+</html>
