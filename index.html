@@ -191,7 +191,7 @@
     }
     if (id === 'btnRegister') {
       // Pasamos ref si existe
-      const ref = getQueryParam('ref') || localStorage.getItem('tvip_ref') || '';
+      const ref = getQueryParam('ref') || localStorage.getItem('multidox-netfree_ref') || '';
       const url = new URL('planes', window.location.href);
       if (ref) url.searchParams.set('ref', ref);
       window.location.href = url.toString();
@@ -208,7 +208,7 @@
   function captureReferral(){
     const ref = getQueryParam('ref');
     if (ref) {
-      try{ localStorage.setItem('multidoxnetfree_ref', ref); }catch(e){}
+      try{ localStorage.setItem('multidox-netfree_ref', ref); }catch(e){}
     }
   }
   captureReferral();
