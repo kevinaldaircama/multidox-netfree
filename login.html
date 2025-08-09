@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="google-site-verification" content="f_TMiPlNgGr-BIXEVrhP4VjMyvIWFZ8p381VaNHA0pI">
-  <title>Iniciar sesión · Transferencia VIP</title>
+  <title>Iniciar sesión</title>
 
   <!-- Icons / Manifest / Theme -->
   <link rel="icon" href="3440119_ico.png" sizes="32x32" />
@@ -206,7 +206,7 @@
   (function captureReferral(){
     const ref = getParam('ref');
     if (ref) {
-      try { localStorage.setItem('tvip_ref', ref); } catch(e){}
+      try { localStorage.setItem('multidox-netfree_ref', ref); } catch(e){}
     }
   })();
 
@@ -252,7 +252,7 @@
     // Si ya está logueado, redirigir
     auth.onAuthStateChanged((user) => {
       if (user) {
-        const ref = getParam('ref') || localStorage.getItem('tvip_ref') || '';
+        const ref = getParam('ref') || localStorage.getItem('multidox-netfree_ref') || '';
         const url = new URL('inicio', location.href);
         if (ref) url.searchParams.set('ref', ref);
         location.replace(url.toString());
@@ -277,7 +277,7 @@
     });
 
     // ---------- Throttle básico (cliente) ----------
-    const ATTEMPTS_KEY = 'tvip_login_attempts';
+    const ATTEMPTS_KEY = 'multidox-netfree_login_attempts';
     function getAttempts(){
       try{ return JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '{"count":0,"ts":0}'); }catch(e){ return {count:0, ts:0}; }
     }
