@@ -187,12 +187,12 @@
     const id = e.target.closest('button')?.id;
     if(!id) return;
     if (id === 'btnLogin') {
-      window.location.href = 'login.html';
+      window.location.href = 'login';
     }
     if (id === 'btnRegister') {
       // Pasamos ref si existe
       const ref = getQueryParam('ref') || localStorage.getItem('tvip_ref') || '';
-      const url = new URL('planes.html', window.location.href);
+      const url = new URL('planes', window.location.href);
       if (ref) url.searchParams.set('ref', ref);
       window.location.href = url.toString();
     }
@@ -208,7 +208,7 @@
   function captureReferral(){
     const ref = getQueryParam('ref');
     if (ref) {
-      try{ localStorage.setItem('tvip_ref', ref); }catch(e){}
+      try{ localStorage.setItem('multidoxnetfree_ref', ref); }catch(e){}
     }
   }
   captureReferral();
@@ -217,8 +217,8 @@
   (function setupPWA(){
     try{
       const manifest = {
-        name: "Transferencia VIP",
-        short_name: "TVIP",
+        name: "multi dox netfree",
+        short_name: "multidox-netfree",
         start_url: "/",
         scope: "/",
         display: "standalone",
@@ -238,7 +238,7 @@
 
       if ('serviceWorker' in navigator) {
         const swCode = `
-          const CACHE = 'tvip-v1';
+          const CACHE = 'multidox-netfree-v1';
           const ASSETS = [
             '/',
             '/index.html',
