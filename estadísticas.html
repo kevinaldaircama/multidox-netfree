@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Estadísticas del Sistema</title>
@@ -118,17 +119,19 @@
     <canvas id="chartRendimiento" height="100"></canvas>
     <canvas id="chartReferidos" height="100"></canvas>
     <button class="export-btn" onclick="exportarPDF()">Exportar PDF</button>
-  </div>  <script>
+  </div>
+
+  <script>
     const firebaseConfig = {
         apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
-    authDomain: "transferencia-88fd7.firebaseapp.com",
-    databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
-    projectId: "transferencia-88fd7",
-    storageBucket: "transferencia-88fd7.firebasestorage.app",
-    messagingSenderId: "343352831024",
-    appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
-    measurementId: "G-LNX1B0RLK7"
-  };
+        authDomain: "transferencia-88fd7.firebaseapp.com",
+        databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
+        projectId: "transferencia-88fd7",
+        storageBucket: "transferencia-88fd7.firebasestorage.app",
+        messagingSenderId: "343352831024",
+        appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
+        measurementId: "G-LNX1B0RLK7"
+    };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
@@ -256,5 +259,6 @@
       document.getElementById('filtroAnio').addEventListener('change', cargarEstadisticas);
       cargarEstadisticas();
     };
-  </script></body>
+  </script>
+</body>
 </html>
