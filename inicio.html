@@ -204,12 +204,13 @@
         <p id="saldoUsuario">$0.00 <span class="text-muted">saldo actual a la fecha</span></p>            
         <div class="progress"><div class="progress-bar bg-success" style="width:100%">Saldo</div></div>            
       </div>            
-      <div class="col-md-6 queries-box">            
-        <h5>Consultas Realizadas</h5>            
-        <p>1000 <a href="#" class="text-white">ver historial</a></p>            
-        <div class="progress"><div class="progress-bar bg-danger" style="width:90%"></div></div>            
-      </div>            
-    </div>            
+      <div class="col-md-6 queries-box">
+  <h5>Número de Recargas</h5>
+  <p id="numRecargas">0 <a href="#" class="text-white" id="verHistorial">ver historial</a></p>
+  <div class="progress">
+    <div class="progress-bar bg-danger" id="recargasProgress" style="width:0%"></div>
+  </div>
+</div>            
             
     <div class="text-center mt-3">            
       <a href="referido" class="btn-invite"><i class="fas fa-user-plus"></i> Invitar Amigos</a>            
@@ -472,7 +473,32 @@ document.getElementById("consultaInput").addEventListener("input", function () {
     item.textContent = c.nombre;          
     resultados.appendChild(item);          
   });          
-});          
+}); 
+  // Función para obtener las recargas del usuario
+function obtenerRecargas(uid) {
+  const ref = db.ref(`usuarios/${uid}/historialRecargas`);
+
+  ref.once('value', snapshot => {
+    const data = snapshot.val();
+    const numRecargas = data ? Object.keys(data).length : 0; // Número de recargas
+    const progreso = (numRecargas > 1000) ? 100 : (numRecargas / 1000) * 100; // Progreso hasta el 100%
+
+    // Actualizamos el número de recargas y la barra de progreso
+    document.getElementById('numRecargas').innerHTML = `${numRecargas} <a href="#" class="text-white" id="verHistorial">ver historial</a>`;
+    document.getElementById('recargasProgress').style.width = `${progreso}%`;
+  });
+}
+
+// Obtener el UID del usuario autenticado
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    const uid = user.uid;
+    obtenerRecargas(uid); // Llamamos la función con el UID del usuario
+  } else {
+    console.log('No hay usuario autenticado.');
+  }
+});
+  
 </script>            
 </body>            
       </html>
