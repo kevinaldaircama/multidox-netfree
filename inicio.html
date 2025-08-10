@@ -481,10 +481,10 @@ function obtenerRecargas(uid) {
   ref.once('value', snapshot => {
     const data = snapshot.val();
     const numRecargas = data ? Object.keys(data).length : 0; // Número de recargas
-    const progreso = (numRecargas > 1000) ? 100 : (numRecargas / 1000) * 100; // Progreso hasta el 100%
+    const progreso = (numRecargas > 100) ? 100 : (numRecargas / 100) * 100; // Progreso hasta el 100%
 
     // Actualizamos el número de recargas y la barra de progreso
-    document.getElementById('numRecargas').innerHTML = `${numRecargas} <a href="#" class="text-white" id="verHistorial">ver historial</a>`;
+    document.getElementById('numRecargas').innerHTML = `${numRecargas} <a href="recargas" class="text-white" id="verHistorial">ver historial</a>`;
     document.getElementById('recargasProgress').style.width = `${progreso}%`;
   });
 }
