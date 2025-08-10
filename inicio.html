@@ -2,28 +2,16 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>menú principal</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#121212" />
-  <link rel="icon" type="image/png" href="3440119_ico.png">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
+  <title>menú principal</title>  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>  
+  <link rel="manifest" href="manifest.json" />  
+  <meta name="theme-color" content="#121212" />  
+  <link rel="icon" type="image/png" href="3440119_ico.png">  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />  
   <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="¡Únete a Transferencia VIP y gana créditos!" />
-  <meta property="og:description" content="Regístrate con este enlace de referido y recibe hasta 10 créditos gratis. Empieza a ganar hoy." />
-  <meta property="og:image" content="https://transferenciavip.xyz/3440119_ico.png" />
-  <meta property="og:url" content="https://transferenciavip.xyz" />
-  <meta property="og:type" content="website" />
-  <!-- Twitter Cards -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="¡Gana créditos con Transferencia VIP!" />
-  <meta name="twitter:description" content="Regístrate con un referido y recibe bonificaciones instantáneas." />
-  <meta name="twitter:image" content="https://transferenciavip.xyz/3440119_ico.png" />
-       
   <style>
     #loaderOverlay {
       position: fixed;
@@ -47,9 +35,35 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    body {
+
+    /* Modo claro */
+    body.light-mode {
       background-color: #f5f5f5;
       color: #111;
+    }
+    body.light-mode .sidebar {
+      background-color: #e0e0e0;
+    }
+    body.light-mode .nav-link {
+      color: #111;
+    }
+    body.light-mode .nav-link:hover {
+      color: #0d6efd;
+    }
+    body.light-mode .dashboard-container {
+      background-color: #fff;
+      color: #000;
+    }
+    body.light-mode .credit-box {
+      background-color: #dee2e6;
+    }
+    body.light-mode .queries-box {
+      background-color: #f8d7da;
+    }
+
+    body {
+      background-color: #111;
+      color: #fff;
       font-family: 'Segoe UI', sans-serif;
     }
     .dashboard-container { max-width: 1200px; margin: auto; padding: 1rem; }
@@ -65,8 +79,8 @@
       border-radius: 10px;
       margin-top: 1rem;
     }
-    .credit-box { background-color: #dee2e6; }
-    .queries-box { background-color: #f8d7da; }
+    .credit-box { background-color: #202d3a; }
+    .queries-box { background-color: #47222e; }
     .btn-credits, .btn-invite {
       background-color: #0d6efd;
       color: white;
@@ -106,6 +120,7 @@
       font-size: 0.85rem;
       color: #aaa;
     }
+
     .sidebar {
       position: fixed;
       top: 0; left: -260px;
@@ -140,29 +155,10 @@
       margin-top: 1rem;
       cursor: pointer;
     }
-
-    /* Modo claro */
-    body.light-mode {
-      background-color: #f5f5f5;
-      color: #111;
-    }
-    body.light-mode .sidebar { background-color: #e0e0e0; }
-    body.light-mode .nav-link { color: #111; }
-    body.light-mode .nav-link:hover { color: #0d6efd; }
-    body.light-mode .dashboard-container { background-color: #fff; color: #000; }
-    body.light-mode .credit-box { background-color: #dee2e6; }
-    body.light-mode .queries-box { background-color: #f8d7da; }
-
-    /* Modal personalizado */
-    .modal-content {
-      background-color: #1a1a1a;
-      color: white;
-      border: 1px solid #444;
-    }
-  </style>
-</head>
-<body class="light-mode">
-  <div id="loaderOverlay"><div class="loader"></div></div>
+  </style>   
+</head>      
+<body>      
+<div id="loaderOverlay"><div class="loader"></div></div>
 
   <div class="hamburger text-white">
     <i class="fas fa-bars" onclick="toggleSidebar()"></i>
@@ -171,14 +167,14 @@
   <div class="sidebar" id="sidebar">
     <h6 class="text-primary">BARRA DE MENÚ</h6>
     <a href="index" class="nav-link"><i class="fas fa-home"></i> Inicio</a>
-    <a href="convertidor" class="nav-link"><i class="fas fa-credit-card"></i> Convertir créditos a soles</a>
-    <a href="compartí créditos" class="nav-link"><i class="fas fa-credit-card"></i> Enviar créditos</a>
+    <a href="convertidor" class="nav-link"><i class="fas fa-credit-card"></i>convertir créditos a soles</a>
+    <a href="compartí créditos" class="nav-link"><i class="fas fa-credit-card"></i>enviar créditos</a>
     <a href="index" class="nav-link" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
     <a href="referido" class="nav-link"><i class="fas fa-users"></i> Mis Referidos</a>
     <hr>
     <h6 class="text-primary">OUR FEATURES</h6>
     <div class="toggle-switch" onclick="toggleMode()" id="modeToggle">
-      <i class="fas fa-sun text-warning" id="modeIcon"></i>
+      <i class="fas fa-sun text-warning" id="modeIcon"></i> <!-- Cambié el icono a sol para el modo claro -->
       <span id="modeText">Modo Claro</span>
     </div>
     <div class="mt-3"><a href="admin panel" class="btn btn-primary w-100">Acceso admin</a></div>
@@ -193,204 +189,170 @@
       <h4 class="text-light">on search</h4>
       <p>Encuentra conexiones, construye historias: tu búsqueda comienza aquí.</p>
       <a href="planes" class="btn-credits">Comprar Créditos <i class="fas fa-coins"></i></a>
-    </div>
+    </div>      
+      
+    <div class="row">      
+      <div class="col-md-6 credit-box">      
+        <h5>Saldo Total</h5>      
+        <p id="saldoUsuario">$0.00 <span class="text-muted">saldo actual a la fecha</span></p>      
+        <div class="progress"><div class="progress-bar bg-success" style="width:100%">Saldo</div></div>      
+      </div>      
+      <div class="col-md-6 queries-box">      
+        <h5>Consultas Realizadas</h5>      
+        <p>1000 <a href="#" class="text-white">ver historial</a></p>      
+        <div class="progress"><div class="progress-bar bg-danger" style="width:90%"></div></div>      
+      </div>      
+    </div>      
+      
+    <div class="text-center mt-3">      
+      <a href="referido.html" class="btn-invite"><i class="fas fa-user-plus"></i> Invitar Amigos</a>      
+      <p class="text-muted">Comparte tu enlace de referidos y obtén créditos por su recarga</p>      
+    </div>      
+      
+    <div class="query-search">    
+  <label for="consultaInput">Consultas 2025</label>    
+  <input type="text" id="consultaInput" class="form-control" placeholder="Buscar por nombre o tipo de consulta" />    
+  <div class="filter-tags"><span class="badge bg-primary">Todos</span></div>    
+  
+  <!-- Resultados dinámicos -->  
+  <div id="resultadosBusqueda" class="list-group mt-3"></div>  
+</div>  
+      
+    <div class="mt-4">      
+      <h5>Categorías Populares</h5>      
+      <div>      
+        <a href="api/consulta dni.html" class="category-btn"><i class="fas fa-user"></i>consulta dni</a>      
+        <a href="api/consulta nombre.html" class="category-btn"><i class="fas fa-user"></i>consulta por nombre</a>      
+        <a href="api/telefono.html" class="category-btn"><i class="fas fa-user"></i>consulta por número telefónico</a>      
+        <a href="api/Yape fake.html" class="category-btn"><i class="fas fa-user"></i>yape fake</a>      
+        <a href="api/c4 info.html" class="category-btn"><i class="fas fa-user"></i>generador c4</a>      
+        <a href="api/sis.html" class="category-btn"><i class="fas fa-user"></i>seguro sis</a>      
+        <a href="api/delitos.html" class="category-btn"><i class="fas fa-user"></i>antecedentes penales</a>      
+        <a href="api/delitos.html" class="category-btn"><i class="fas fa-user"></i>antecedentes judiciales</a>      
+     
+      </div>      
+    </div>      
+      
+    <div class="footer">      
+      <p>© 2025 multidoxnetfree | todos los derechos reservados ©️</p>      
+    </div>      
+  </div>      
+      
+  <!-- Modal de Notificación -->      
+  <div class="modal fade" id="modalNotificacion" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">      
+    <div class="modal-dialog modal-dialog-centered">      
+      <div class="modal-content">      
+        <div class="modal-header">      
+          <h5 class="modal-title" id="modalLabel"><i class="fas fa-bell text-warning"></i> Notificación</h5>      
+        </div>      
+        <div class="modal-body" id="contenidoNotificacion"></div>      
+        <div class="modal-footer">      
+          <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Aceptar</button>      
+        </div>      
+      </div>      
+    </div>      
+  </div>      
+     
+  <!-- Scripts -->      
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>      
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>      
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>      
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>      
+      
+<!-- SCRIPT COMPLETO (fragmento relevante actualizado) -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDFxkNJCVxwddZFsqPeXSdeYe87ExEdhQk",
+    authDomain: "roddox-27e1b.firebaseapp.com",
+    databaseURL: "https://roddox-27e1b-default-rtdb.firebaseio.com",
+    projectId: "roddox-27e1b",
+    storageBucket: "roddox-27e1b.firebasestorage.app",
+    messagingSenderId: "108259944325",
+    appId: "1:108259944325:web:4ffd0c6e7815822eb1c6ec",
+    measurementId: "G-MBQ5X9PLF8"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-    <div class="row">
-      <div class="col-md-6 credit-box">
-        <h5>Saldo Total</h5>
-        <p id="saldoUsuario">$0.00 <span class="text-muted">saldo actual a la fecha</span></p>
-        <div class="progress"><div class="progress-bar bg-success" style="width:100%">Saldo</div></div>
-      </div>
-      <div class="col-md-6 queries-box">
-        <h5>Consultas Realizadas</h5>
-        <p>1000 <a href="#" class="text-white">ver historial</a></p>
-        <div class="progress"><div class="progress-bar bg-danger" style="width:90%"></div></div>
-      </div>
-    </div>
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      const uid = user.uid;
 
-    <div class="text-center mt-3">
-      <a href="referido" class="btn-invite"><i class="fas fa-user-plus"></i> Invitar Amigos</a>
-      <p class="text-muted">Comparte tu enlace de referidos y obtén créditos por su recarga</p>
-    </div>
+      // ✅ MOSTRAR PLAN DESDE FIREBASE
+      db.ref(`usuarios/${uid}/plan`).on('value', snapshot => {
+        const plan = snapshot.val() || 'FREE';
+        const tipoPlanEl = document.getElementById('tipoPlan');
+        tipoPlanEl.innerText = plan;
 
-    <div class="query-search">
-      <label for="consultaInput">Consultas 2025</label>
-      <input type="text" id="consultaInput" class="form-control" placeholder="Buscar por nombre
-        <input type="text" id="consultaInput" class="form-control" placeholder="Buscar por nombre o tipo de consulta" />
-      <div class="filter-tags"><span class="badge bg-primary">Todos</span></div>
+        tipoPlanEl.classList.remove(
+          'text-warning', 'text-info', 'text-danger', 'text-muted', 'text-primary', 'text-success'
+        );
 
-      <!-- Resultados dinámicos -->
-      <div id="resultadosBusqueda" class="list-group mt-3"></div>
-    </div>
+        if (plan === 'FREE') {
+          tipoPlanEl.classList.add('text-warning');
+        } else if (plan === 'BRONCE') {
+          tipoPlanEl.classList.add('text-muted');
+        } else if (plan === 'ORO') {
+          tipoPlanEl.classList.add('text-info');
+        } else if (plan === 'PREMIUM') {
+          tipoPlanEl.classList.add('text-danger');
+        } else if (plan === 'VIP') {
+          tipoPlanEl.classList.add('text-primary');
+        } else if (plan === 'DIAMANTE') {
+          tipoPlanEl.classList.add('text-success');
+        }
+      });
 
-    <div class="mt-4">
-      <h5>Categorías Populares</h5>
-      <div>
-        <a href="#" class="category-btn"><i class="fas fa-user"></i>Inicio</a>
-        <a href="creación de vps" class="category-btn"><i class="fas fa-user"></i>Generador de VPS</a>
-        <a href="curso" class="category-btn"><i class="fas fa-user"></i>Curso Streaming</a>
-        <a href="Yape fake" class="category-btn"><i class="fas fa-user"></i>Yape Fake</a>
-        <a href="Generar servidores" class="category-btn"><i class="fas fa-user"></i>Generador de Servidores</a>
-      </div>
-    </div>
+      // ✅ SALDO ACTUAL
+      db.ref(`usuarios/${uid}/comisionesTotales`).on('value', snapshot => {
+        const creditos = parseFloat(snapshot.val()) || 0;
+        document.getElementById('saldoUsuario').innerHTML =
+          `$${creditos.toFixed(2)} <span class="text-muted">saldo actual a la fecha</span>`;
+      });
 
-    <div class="footer">
-      <p>© 2025 Transferencia VIP App | Desarrollado por KTT</p>
-    </div>
-  </div>
-
-  <!-- Modal de Notificación -->
-  <div class="modal fade" id="modalNotificacion" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalLabel"><i class="fas fa-bell text-warning"></i> Notificación</h5>
-        </div>
-        <div class="modal-body" id="contenidoNotificacion"></div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Aceptar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Banner Pop-up Fiestas Patrias con contador y expiración automática -->
-  <div id="fiestasBanner" style="display: none; position: fixed; bottom: 20px; right: 20px; max-width: 360px; background: linear-gradient(135deg, #ff0000, #ffffff, #ff0000); color: #000; padding: 20px; border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.3); font-family: 'Segoe UI', sans-serif; z-index: 9999;">
-    <button onclick="document.getElementById('fiestasBanner').style.display='none'" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; font-size: 18px; cursor: pointer;">×</button>
-    <h2 style="font-size: 22px; margin-top: 0;">🎉🇵🇪 ¡Felices Fiestas Patrias, Perú! 🇵🇪🎉</h2>
-    <p style="font-size: 16px;">
-      En <strong>TransferenciaVIP</strong> estamos regalando <strong>VPS, servidores, cursos y más</strong> totalmente <span style="color: red; font-weight: bold;">GRATIS</span> por tiempo limitado.
-    </p>
-    <p style="font-weight: bold; font-size: 16px; color: #d80000;">🔥 ¡Solo por 5 días! (27 al 31 de julio) 🔥</p>
-    <p style="font-size: 16px; margin: 10px 0;">
-      ⏳ <strong>Quedan <span id="diasRestantes"></span> días</strong> para aprovechar.
-    </p>
-    <a href="referido.html" target="_blank" style="display: inline-block; background: #d80000; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 16px;">
-      🎁 ¡Gana 15 Créditos Aquí invitando gente!
-    </a>
-    <p style="margin-top: 10px; font-size: 14px;">💻 Celebra con nosotros esta gran fiesta nacional con <strong>regalos digitales únicos</strong>.</p>
-    <div style="font-size: 12px; margin-top: 8px; color: #333;">
-      #TransferenciaVIP #FiestasPatrias #Perú #RegalosDigitales #CursosGratis #VPSGratis
-    </div>
-  </div>
-
-  <!-- Script: mostrar solo si aún no termina la promo -->
-  <script>
-    (function() {
-      const hoy = new Date();
-      const finPromo = new Date('2025-07-31T23:59:59');
-
-      if (hoy <= finPromo) {
-        document.getElementById('fiestasBanner').style.display = 'block';
-
-        const diferencia = finPromo - hoy;
-        const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
-        document.getElementById('diasRestantes').textContent = dias > 0 ? dias : 0;
-      }
-      // Si la fecha ya pasó, el banner no se mostrará.
-    })();
-  </script>
-
-  <!-- Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- SCRIPT COMPLETO (fragmento relevante actualizado) -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
-      authDomain: "transferencia-88fd7.firebaseapp.com",
-      databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
-      projectId: "transferencia-88fd7",
-      storageBucket: "transferencia-88fd7.firebasestorage.app",
-      messagingSenderId: "343352831024",
-      appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
-      measurementId: "G-LNX1B0RLK7"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        const uid = user.uid;
-
-        // ✅ MOSTRAR PLAN DESDE FIREBASE
-        db.ref(`usuarios/${uid}/plan`).on('value', snapshot => {
-          const plan = snapshot.val() || 'FREE';
-          const tipoPlanEl = document.getElementById('tipoPlan');
-          tipoPlanEl.innerText = plan;
-
-          tipoPlanEl.classList.remove(
-            'text-warning', 'text-info', 'text-danger', 'text-muted', 'text-primary', 'text-success'
-          );
-
-          if (plan === 'FREE') {
-            tipoPlanEl.classList.add('text-warning');
-          } else if (plan === 'BRONCE') {
-            tipoPlanEl.classList.add('text-muted');
-          } else if (plan === 'ORO') {
-            tipoPlanEl.classList.add('text-info');
-          } else if (plan === 'PREMIUM') {
-            tipoPlanEl.classList.add('text-danger');
-          } else if (plan === 'VIP') {
-            tipoPlanEl.classList.add('text-primary');
-          } else if (plan === 'DIAMANTE') {
-            tipoPlanEl.classList.add('text-success');
-          }
-        });
-
-        // ✅ SALDO ACTUAL
-        db.ref(`usuarios/${uid}/comisionesTotales`).on('value', snapshot => {
-          const creditos = parseFloat(snapshot.val()) || 0;
-          document.getElementById('saldoUsuario').innerHTML =
-            `$${creditos.toFixed(2)} <span class="text-muted">saldo actual a la fecha</span>`;
-        });
-
-        // ✅ NOTIFICACIÓN
-        db.ref(`usuarios/${uid}/notificacionRecarga`).once('value').then(snapshot => {
-          const data = snapshot.val();
-          if (data && !data.leido) {
-            document.getElementById('contenidoNotificacion').innerText = data.mensaje;
-            const modal = new bootstrap.Modal(document.getElementById('modalNotificacion'));
-            modal.show();
-            document.getElementById('modalNotificacion').addEventListener('hidden.bs.modal', () => {
-              db.ref(`usuarios/${uid}/notificacionRecarga/leido`).set(true);
-            });
-          }
-        });
-
-        // ✅ UID COPIABLE
-        const uidTexto = document.createElement('p');
-        uidTexto.innerHTML = `<strong>Tu UID:</strong> <code id="uidCopiable" style="cursor:pointer">${uid}</code>`;
-        uidTexto.classList.add('text-info');
-        document.querySelector('.text-center.mt-3').appendChild(uidTexto);
-
-        setTimeout(() => {
-          document.getElementById('uidCopiable').addEventListener('click', () => {
-            navigator.clipboard.writeText(uid).then(() => {
-              const msg = document.createElement('div');
-              msg.innerText = "✅ UID copiado al portapapeles";
-              msg.style.color = "#0f0";
-              msg.style.fontSize = "0.9rem";
-              msg.style.marginTop = "0.3rem";
-              uidTexto.appendChild(msg);
-              setTimeout(() => msg.remove(), 2000);
-            });
+      // ✅ NOTIFICACIÓN
+      db.ref(`usuarios/${uid}/notificacionRecarga`).once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (data && !data.leido) {
+          document.getElementById('contenidoNotificacion').innerText = data.mensaje;
+          const modal = new bootstrap.Modal(document.getElementById('modalNotificacion'));
+          modal.show();
+          document.getElementById('modalNotificacion').addEventListener('hidden.bs.modal', () => {
+            db.ref(`usuarios/${uid}/notificacionRecarga/leido`).set(true);
           });
-        }, 100);
-      } else {
-        window.location.href = "index.html";
-      }
-    });
-    
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('active');
-    }
+        }
+      });
 
+      // ✅ UID COPIABLE
+      const uidTexto = document.createElement('p');
+      uidTexto.innerHTML = `<strong>Tu UID:</strong> <code id="uidCopiable" style="cursor:pointer">${uid}</code>`;
+      uidTexto.classList.add('text-info');
+      document.querySelector('.text-center.mt-3').appendChild(uidTexto);
+
+      setTimeout(() => {
+        document.getElementById('uidCopiable').addEventListener('click', () => {
+          navigator.clipboard.writeText(uid).then(() => {
+            const msg = document.createElement('div');
+            msg.innerText = "✅ UID copiado al portapapeles";
+            msg.style.color = "#0f0";
+            msg.style.fontSize = "0.9rem";
+            msg.style.marginTop = "0.3rem";
+            uidTexto.appendChild(msg);
+            setTimeout(() => msg.remove(), 2000);
+          });
+        });
+      }, 100);
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+      
+    function toggleSidebar() {      
+      document.getElementById('sidebar').classList.toggle('active');      
+    }      
+      
     function toggleMode() {
       const body = document.body;
       const icon = document.getElementById('modeIcon');
@@ -406,41 +368,78 @@
         text.textContent = 'Modo Oscuro';
       }
     }
-
-    // Ocultar loader
-    setTimeout(() => {
-      document.getElementById('loaderOverlay').style.display = 'none';
-    }, 10000); // 10 segundos
-
-    // Redirigir después de 10 minutos de inactividad
+      
+    // Ocultar loader      
+    setTimeout(() => {      
+      document.getElementById('loaderOverlay').style.display = 'none';      
+    }, 10000); // 10 segundos      
+      
+    // Cerrar sesión después de 10 segundos
     setTimeout(() => {
       alert("Tu sesión ha expirado. Serás redirigido al login.");
-      window.location.href = "login.html";
-    }, 10 * 60 * 1000);
-    
-    window.addEventListener("load", function(){
-      window.cookieconsent.initialise({
-        palette: {
-          popup: { background: "#000" },
-          button: { background: "#f1d600" }
-        },
-        theme: "classic",
-        content: {
-          message: "Este sitio utiliza cookies para mejorar tu experiencia.",
-          dismiss: "Aceptar",
-          link: "Leer más",
-          href: "politica-cookies.html"
-        }
-      });
-    });
-    
-    function cerrarSesion() {
       firebase.auth().signOut().then(() => {
         window.location.href = "login.html";
-      }).catch((error) => {
-        alert("Error al cerrar sesión: " + error.message);
       });
-    }
-  </script>
-</body>
-            </html>
+    }, 10000); // 10 segundos     
+        
+        
+window.addEventListener("load", function(){      
+  window.cookieconsent.initialise({      
+    palette: {      
+      popup: { background: "#000" },      
+      button: { background: "#f1d600" }      
+    },      
+    theme: "classic",      
+    content: {      
+      message: "Este sitio utiliza cookies para mejorar tu experiencia.",      
+      dismiss: "Aceptar",      
+      link: "Leer más",      
+      href: "politica-cookies.html"      
+    }      
+  });      
+});      
+function cerrarSesion() {    
+  firebase.auth().signOut().then(() => {    
+    window.location.href = "login.html";    
+  }).catch((error) => {    
+    alert("Error al cerrar sesión: " + error.message);    
+  });    
+}    
+const consultas = [    
+  { nombre: "consulta dni", url: "api/consulta dni.html" },    
+  { nombre: "Consulta por nombre", url: "api/consulta nombre.html" },    
+  { nombre: "Tipo de cambio", url: "tipo_cambio.html" },    
+  { nombre: "Generador de VPS", url: "creación de vps.html" },    
+  { nombre: "Curso streaming", url: "curso.html" },    
+  { nombre: "Yape fake", url: "Yape fake.html" },    
+  { nombre: "Generador de servidores", url: "Generar servidores.html" },    
+  { nombre: "Inicio", url: "index.html" }    
+];    
+    
+document.getElementById("consultaInput").addEventListener("input", function () {    
+  const filtro = this.value.toLowerCase();    
+  const resultados = document.getElementById("resultadosBusqueda");    
+  resultados.innerHTML = ""; // Limpiar resultados    
+    
+  if (filtro.length === 0) return;    
+    
+  const filtradas = consultas.filter(c => c.nombre.toLowerCase().includes(filtro));    
+    
+  if (filtradas.length === 0) {    
+    resultados.innerHTML = '<div class="list-group-item bg-dark text-light">No hay coincidencias</div>';    
+    return;    
+  }    
+    
+  filtradas.forEach(c => {    
+    const item = document.createElement("a");    
+    item.href = c.url;    
+    item.className = "list-group-item list-group-item-action bg-dark text-white";    
+    item.textContent = c.nombre;    
+    resultados.appendChild(item);    
+  });    
+});    
+
+</script>      
+</body>      
+      </html>
+      
