@@ -23,9 +23,7 @@
   <meta name="twitter:image" content="https://transferenciavip.xyz/3440119_ico.png" />
   
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
@@ -141,6 +139,68 @@
         text-align: center;
       }
     }
+
+    /* POP-UP 40% Descuento */
+    #popupDescuento {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 400px;
+      background: linear-gradient(135deg, #1e90ff, #ffffff, #1e90ff);
+      color: #000;
+      padding: 6vw;
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+      font-family: 'Segoe UI', sans-serif;
+      z-index: 99999;
+      text-align: center;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    #popupDescuento h2 {
+      font-size: 1.5rem;
+      margin-top: 0;
+    }
+
+    #popupDescuento p {
+      font-size: 1rem;
+      margin: 0.6em 0;
+    }
+
+    #popupDescuento a {
+      display: inline-block;
+      background: #1e90ff;
+      color: #fff;
+      padding: 0.7em 1.5em;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 1rem;
+      margin-top: 0.7em;
+      transition: background 0.3s ease;
+    }
+
+    #popupDescuento a:hover {
+      background: #006fdc;
+    }
+
+    #popupDescuento button.close-btn {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #000;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
   </style>
 </head>
 <body>
@@ -157,7 +217,6 @@
     </div>
 
     <div class="plans">
-      <!-- Planes individuales -->
       <div class="plan">
         <h3>Plan Free</h3>
         <p class="price">S/ 00</p>
@@ -237,99 +296,31 @@
       </div>
     </div>
   </div>
-  <!-- POP-UP 40% Descuento Responsive (con vencimiento al 31 de agosto) -->
-<style>
-  #popupDescuento {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 400px;
-    background: linear-gradient(135deg, #1e90ff, #ffffff, #1e90ff);
-    color: #000;
-    padding: 6vw;
-    border-radius: 16px;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
-    font-family: 'Segoe UI', sans-serif;
-    z-index: 99999;
-    text-align: center;
-    animation: fadeIn 0.5s ease-in-out;
-  }
 
-  #popupDescuento h2 {
-    font-size: 1.5rem;
-    margin-top: 0;
-  }
+  <div id="popupDescuento">
+    <button class="close-btn" onclick="document.getElementById('popupDescuento').style.display='none'">×</button>
+    <h2>🎉 ¡40% de Descuento en Planes! 🎉</h2>
+    <p>Solo por tiempo limitado, obtén <strong>40% OFF</strong> en todos nuestros planes premium. 💡</p>
+    <p style="color: #d80000; font-weight: bold;">
+      ⏳ ¡Quedan <span id="diasDescuento"></span> días!
+    </p>
+    <a href="promociones" target="_blank">
+      🚀 ¡Aprovecha Ahora!
+    </a>
+    <p style="font-size: 0.9rem;">🔒 Válido hasta el <strong>31 de julio de 2025</strong>.</p>
+  </div>
 
-  #popupDescuento p {
-    font-size: 1rem;
-    margin: 0.6em 0;
-  }
-
-  #popupDescuento a {
-    display: inline-block;
-    background: #1e90ff;
-    color: #fff;
-    padding: 0.7em 1.5em;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 1rem;
-    margin-top: 0.7em;
-    transition: background 0.3s ease;
-  }
-
-  #popupDescuento a:hover {
-    background: #006fdc;
-  }
-
-  #popupDescuento button.close-btn {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    background: transparent;
-    border: none;
-    font-size: 1.4rem;
-    cursor: pointer;
-    color: #000;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translate(-50%, -60%); }
-    to { opacity: 1; transform: translate(-50%, -50%); }
-  }
-</style>
-
-<div id="popupDescuento">
-  <button class="close-btn" onclick="document.getElementById('popupDescuento').style.display='none'">×</button>
-  <h2>🎉 ¡40% de Descuento en Planes! 🎉</h2>
-  <p>Solo por tiempo limitado, obtén <strong>40% OFF</strong> en todos nuestros planes premium. 💡</p>
-  <p style="color: #d80000; font-weight: bold;">
-    ⏳ ¡Quedan <span id="diasDescuento"></span> días!
-  </p>
-  <a href="promociones" target="_blank">
-    🚀 ¡Aprovecha Ahora!
-  </a>
-  <p style="font-size: 0.9rem;">🔒 Válido hasta el <strong>31 de julio de 2025</strong>.</p>
-</div>
-
-<script>
-  (function () {
-    const hoy = new Date();
-    const finDescuento = new Date('2025-07-31T23:59:59');
-
-    if (hoy <= finDescuento) {
-      // Mostrar el pop-up si aún está vigente
-      document.getElementById('popupDescuento').style.display = 'block';
-
-      // Calcular y mostrar días restantes
-      const diferencia = finDescuento - hoy;
-      const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
-      document.getElementById('diasDescuento').textContent = dias > 0 ? dias : 0;
-    }
-    // Si ha vencido, no se muestra
-  })();
-</script>
+  <script>
+    (function () {
+      const hoy = new Date();
+      const finDescuento = new Date('2025-07-31T23:59:59');
+      if (hoy <= finDescuento) {
+        document.getElementById('popupDescuento').style.display = 'block';
+        const diferencia = finDescuento - hoy;
+        const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
+        document.getElementById('diasDescuento').textContent = dias > 0 ? dias : 0;
+      }
+    })();
+  </script>
 </body>
-</html>
+  </html>
