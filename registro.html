@@ -215,7 +215,7 @@
     async function registrarUsuario({email, username, fullName, uid, isGoogle=false}){
       const fecha = new Date().toISOString().split('T')[0];
       const refId = getStoredRef(); // uid del referidor (o un código)
-      const comisionesIniciales = refId ? 10 : 0;
+      const comisionesIniciales = refId ? 0 : 0;
 
       const data = {
         correo: email,
