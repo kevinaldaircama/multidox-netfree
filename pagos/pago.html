@@ -54,6 +54,26 @@
     }
     .credits strong{ color:var(--brand) }
     .secure{ text-align:center; font-size:.8rem; margin-top:10px; color:#667; }
+
+    /* Modal */
+    #modalPago{
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+      z-index:999; justify-content:center; align-items:center;
+    }
+    #modalPago .modal-content{
+      background:white; width:90%; max-width:800px; height:80%;
+      border-radius:12px; overflow:hidden; display:flex; flex-direction:column;
+    }
+    #modalPago header{
+      padding:10px; background:#0f2027; color:white;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #modalPago iframe{
+      flex:1; border:none;
+    }
+    #modalPago button{
+      background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;
+    }
   </style>
 
   <!-- Firebase v9 compat -->
@@ -86,6 +106,17 @@
     </div>
   </div>
 
+  <!-- Modal -->
+  <div id="modalPago">
+    <div class="modal-content">
+      <header>
+        <strong>Verificación de Pago</strong>
+        <button onclick="cerrarModal()">✖</button>
+      </header>
+      <iframe id="iframePago" src=""></iframe>
+    </div>
+  </div>
+
   <script>
     // Firebase
     window.addEventListener('DOMContentLoaded', () => {
@@ -109,10 +140,17 @@
       });
     });
 
-    // Botón que redirige sin parámetros
+    // Abrir modal
     document.getElementById('btnPagado').addEventListener('click', () => {
-      window.location.href = 'veri/comprobante1'; // ← Cambia por la URL que quieras
+      document.getElementById('iframePago').src = 'veri/comprobante1'; // ← cambia por tu página
+      document.getElementById('modalPago').style.display = 'flex';
     });
+
+    // Cerrar modal
+    function cerrarModal(){
+      document.getElementById('modalPago').style.display = 'none';
+      document.getElementById('iframePago').src = "";
+    }
   </script>
 </body>
-          </html>
+</html>
