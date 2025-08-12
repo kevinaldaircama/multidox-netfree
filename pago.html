@@ -90,7 +90,7 @@
         color: #666;
     }
 </style>
-<!-- Firebase App -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 </head>
@@ -108,13 +108,14 @@
     </p>
 
     <div class="qr-container">
-        <img src="yape.jpg" alt="QR Yape">
+        <img src="https://i.ibb.co/1GqK8DR/qr-yape.png" alt="QR Yape">
         <p style="margin-top: 5px; font-size: 14px; color: #555;">
-            934075884
+            Flavio Garcia Arenas
         </p>
     </div>
 
-    <button class="btn" onclick="window.location.href='https://tu-pagina-destino.com'">✅ YA PAGUÉ</button>
+    <button class="btn" onclick="window.location.href='comprobante.html'">✅ YA PAGUÉ</button>
+
     <div class="credits">
         Créditos a recibir: <span>310 créditos</span>
     </div>
@@ -139,7 +140,7 @@
   };
 
   // Inicializar Firebase
-  const app = firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
   // Verificar usuario autenticado
@@ -154,4 +155,4 @@
 </script>
 
 </body>
-</html>
+                                                  </html>
