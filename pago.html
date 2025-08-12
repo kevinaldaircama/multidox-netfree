@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pago con Yape</title>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #f7f7f7;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+    }
+    .card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 20px;
+        max-width: 380px;
+        width: 100%;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .header {
+        background: #f8f6fc;
+        border-radius: 12px;
+        padding: 10px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .header span {
+        font-weight: 600;
+    }
+    .header .total {
+        font-size: 18px;
+        font-weight: bold;
+        color: #14a44d;
+    }
+    h2 {
+        text-align: center;
+        font-size: 20px;
+        margin: 15px 0;
+    }
+    .qr-container {
+        border: 2px dashed #a14acb;
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+    }
+    .qr-container img {
+        max-width: 200px;
+        border-radius: 12px;
+    }
+    .btn {
+        display: block;
+        width: 100%;
+        background: #14a44d;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        margin-top: 15px;
+        cursor: pointer;
+    }
+    .btn:hover {
+        background: #0e7a36;
+    }
+    .credits {
+        background: #f8f6fc;
+        border-radius: 12px;
+        padding: 10px;
+        margin-top: 15px;
+        text-align: center;
+        font-size: 14px;
+    }
+    .credits span {
+        font-weight: bold;
+        color: #a14acb;
+    }
+    .secure {
+        text-align: center;
+        font-size: 12px;
+        margin-top: 10px;
+        color: #666;
+    }
+</style>
+<!-- Firebase App -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">
+        <span id="usuario">Usuario: Cargando...</span>
+        <span class="total">Total a pagar: S/ 37</span>
+    </div>
+
+    <h2>Escanea con Yape</h2>
+    <p style="text-align:center; font-size: 14px; color: #555;">
+        Abre tu app Yape y escanea este código
+    </p>
+
+    <div class="qr-container">
+        <img src="yape.jpg" alt="QR Yape">
+        <p style="margin-top: 5px; font-size: 14px; color: #555;">
+            934075884
+        </p>
+    </div>
+
+    <button class="btn" onclick="window.location.href='https://tu-pagina-destino.com'">✅ YA PAGUÉ</button>
+    <div class="credits">
+        Créditos a recibir: <span>310 créditos</span>
+    </div>
+
+    <div class="secure">
+        🔒 Pago 100% Seguro<br>
+        Tus datos están protegidos con encriptación SSL
+    </div>
+</div>
+
+<script>
+  // Configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+    projectId: "TU_PROJECT_ID",
+    storageBucket: "TU_PROJECT_ID.appspot.com",
+    messagingSenderId: "ID_MENSAJERIA",
+    appId: "TU_APP_ID"
+  };
+
+  // Inicializar Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // Verificar usuario autenticado
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      const nombre = user.displayName || user.email || user.uid;
+      document.getElementById("usuario").textContent = `Usuario: ${nombre.toUpperCase()}`;
+    } else {
+      document.getElementById("usuario").textContent = "Usuario: No autenticado";
+    }
+  });
+</script>
+
+</body>
+</html>
