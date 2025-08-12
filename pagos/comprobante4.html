@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Verificar Yapeo</title>
+<style>
+  body{font-family:Arial, sans-serif;background:#f8f8f8;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}
+  .card{background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.12);padding:22px;width:92%;max-width:420px}
+  .badge{background:#f5f1ff;border-radius:16px;padding:14px 16px;margin-bottom:14px}
+  .row{display:flex;justify-content:space-between;align-items:center}
+  .price{color:#1bb86a;font-weight:800;font-size:28px}
+  h3{margin:10px 0 6px;font-size:16px}
+  p.small{margin:0 0 10px;color:#6b7280;font-size:13px}
+  .input{width:100%;padding:14px 14px;border:1px solid #e5e7eb;border-radius:14px;font-size:15px;outline:none}
+  .input[readonly]{background:#f9fafb;color:#6b7280}
+  .block{margin:10px 0 14px}
+  .btn{width:100%;padding:14px;border:none;border-radius:14px;background:#1d6ef0;color:#fff;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 6px 18px rgba(29,110,240,.25)}
+  .btn:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
+  .credits{background:#f2e7ff;border-radius:16px;padding:14px;margin-top:14px;text-align:center}
+  .secure{text-align:center;color:#16a34a;margin-top:8px;font-weight:700}
+  .muted{color:#6b7280;font-size:12px;text-align:center;margin-top:4px}
+
+  /* Modal */
+  .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:1000}
+  .modal-box{background:#fff;padding:25px 30px;border-radius:14px;text-align:center;max-width:300px;animation:fadeIn 0.3s ease}
+  .modal-box p{font-size:16px;margin:0}
+  .spinner{margin:15px auto;width:40px;height:40px;border:4px solid #ddd;border-top:4px solid #1d6ef0;border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes fadeIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">
+      <div class="row">
+        <div>👤 <strong>Usuario:</strong> <span id="usuario">Cargando…</span></div>
+        <div class="price">S/ 150</div>
+      </div>
+    </div>
+
+    <h3>INGRESA EL NOMBRE DEL TITULAR DE TU YAPE</h3>
+    <p class="small">Por favor, escribe el nombre completo con el que se hizo el pago.</p>
+    <div class="block"><input id="nombreTitular" class="input" type="text" placeholder="Ej: Carlos Perez Gomez"></div>
+
+    <h3>INGRESA EL CÓDIGO DE SEGURIDAD</h3>
+    <div class="block"><input id="codigoSeguridad" class="input" type="text" inputmode="numeric" placeholder="Ej: 123456"></div>
+
+    <div class="block"><button id="btnVerificar" class="btn">🔍 VERIFICAR YAPEO</button></div>
+
+    <div class="credits">💳 Créditos a recibir: <strong style="color:#6b21a8">310 créditos</strong></div>
+    <div class="secure">🔒 Pago 100% Seguro</div>
+    <div class="muted">Tus datos están protegidos con encriptación SSL</div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-bg" id="modal">
+    <div class="modal-box">
+      <div class="spinner"></div>
+      <p id="modalText">Procesando datos...</p>
+    </div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
+    authDomain: "transferencia-88fd7.firebaseapp.com",
+    databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
+    projectId: "transferencia-88fd7",
+    storageBucket: "transferencia-88fd7.firebasestorage.app",
+    messagingSenderId: "343352831024",
+    appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
+    measurementId: "G-LNX1B0RLK7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const elUsuario = document.getElementById("usuario");
+  const btn = document.getElementById("btnVerificar");
+  const modal = document.getElementById("modal");
+  const modalText = document.getElementById("modalText");
+
+  let uidGlobal = null;
+  btn.disabled = true;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      elUsuario.textContent = "No autenticado";
+      btn.disabled = true;
+      return;
+    }
+    uidGlobal = user.uid;
+    btn.disabled = false;
+
+    try {
+      const snap = await get(ref(db, `usuarios/${user.uid}/nombreUsuario`));
+      if (snap.exists() && snap.val()) {
+        elUsuario.textContent = snap.val();
+      } else {
+        elUsuario.textContent = user.displayName || (user.email ? user.email.split("@")[0].toUpperCase() : "Usuario");
+      }
+    } catch {
+      elUsuario.textContent = user.displayName || "Usuario";
+    }
+  });
+
+  function genOrderId() {
+    return `YP-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substr(2,5).toUpperCase()}`;
+  }
+
+  btn.addEventListener("click", async () => {
+    const nombre = document.getElementById("nombreTitular").value.trim();
+    const codigo = document.getElementById("codigoSeguridad").value.trim();
+
+    if (!uidGlobal) {
+      alert("⚠️ Inicia sesión para continuar.");
+      return;
+    }
+    if (!nombre || !codigo) {
+      alert("⚠️ Completa el nombre del titular y el código de seguridad.");
+      return;
+    }
+
+    const orderId = genOrderId();
+    const payload = {
+      id: orderId,
+      uid: uidGlobal,
+      titular: nombre,
+      codigo,
+      monto: 37,
+      creditos: 310,
+      estado: "pendiente",
+      createdAt: Date.now()
+    };
+
+    try {
+      await update(ref(db), { [`pagos-pendientes/${orderId}`]: payload });
+
+      // Modal mensajes secuenciales
+      modal.style.display = "flex";
+      modalText.textContent = "⏳ Procesando datos...";
+      setTimeout(() => {
+        modalText.textContent = "💳 Procesando pago...";
+        setTimeout(() => {
+          modalText.textContent = "✅ Pago enviado con éxito. Está en revisión de los administradores.";
+          setTimeout(() => { modal.style.display = "none"; }, 3000);
+        }, 3000);
+      }, 2000);
+
+    } catch (err) {
+      alert("❌ Error al enviar el pago. Intente nuevamente.");
+      console.error(err);
+    }
+  });
+</script>
+</body>
+</html>
