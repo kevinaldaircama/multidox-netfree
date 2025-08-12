@@ -20,16 +20,21 @@
   .credits{background:#f2e7ff;border-radius:16px;padding:14px;margin-top:14px;text-align:center}
   .secure{text-align:center;color:#16a34a;margin-top:8px;font-weight:700}
   .muted{color:#6b7280;font-size:12px;text-align:center;margin-top:4px}
+
+  /* Modal */
+  .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:1000}
+  .modal-box{background:#fff;padding:25px 30px;border-radius:14px;text-align:center;max-width:300px;animation:fadeIn 0.3s ease}
+  .modal-box p{font-size:16px;margin:0}
+  .spinner{margin:15px auto;width:40px;height:40px;border:4px solid #ddd;border-top:4px solid #1d6ef0;border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes fadeIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
 </style>
 </head>
 <body>
   <div class="card">
     <div class="badge">
       <div class="row">
-        <div>
-          <div>👤 <strong>Usuario:</strong> <span id="usuario">Cargando…</span></div>
-          
-        </div>
+        <div>👤 <strong>Usuario:</strong> <span id="usuario">Cargando…</span></div>
         <div class="price">S/ 37</div>
       </div>
     </div>
@@ -41,9 +46,6 @@
     <h3>INGRESA EL CÓDIGO DE SEGURIDAD</h3>
     <div class="block"><input id="codigoSeguridad" class="input" type="text" inputmode="numeric" placeholder="Ej: 123456"></div>
 
-    <h3>TU UID (se autocompleta)</h3>
-    <div class="block"><input id="uidUsuario" class="input" type="text" readonly placeholder="Inicia sesión para ver tu UID"></div>
-
     <div class="block"><button id="btnVerificar" class="btn">🔍 VERIFICAR YAPEO</button></div>
 
     <div class="credits">💳 Créditos a recibir: <strong style="color:#6b21a8">310 créditos</strong></div>
@@ -51,8 +53,15 @@
     <div class="muted">Tus datos están protegidos con encriptación SSL</div>
   </div>
 
+  <!-- Modal -->
+  <div class="modal-bg" id="modal">
+    <div class="modal-box">
+      <div class="spinner"></div>
+      <p id="modalText">Procesando datos...</p>
+    </div>
+  </div>
+
 <script type="module">
-  // Firebase v10
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -73,23 +82,20 @@
   const db = getDatabase(app);
 
   const elUsuario = document.getElementById("usuario");
-  const elUID = document.getElementById("uidUsuario");
-  const elUIDLabel = document.getElementById("uidLabel");
   const btn = document.getElementById("btnVerificar");
+  const modal = document.getElementById("modal");
+  const modalText = document.getElementById("modalText");
 
-  // Deshabilitar botón hasta saber si hay sesión
+  let uidGlobal = null;
   btn.disabled = true;
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       elUsuario.textContent = "No autenticado";
-      elUID.value = "";
-      elUIDLabel.textContent = "—";
       btn.disabled = true;
       return;
     }
-    elUID.value = user.uid;
-    elUIDLabel.textContent = user.uid;
+    uidGlobal = user.uid;
     btn.disabled = false;
 
     try {
@@ -99,26 +105,20 @@
       } else {
         elUsuario.textContent = user.displayName || (user.email ? user.email.split("@")[0].toUpperCase() : "Usuario");
       }
-    } catch (e) {
+    } catch {
       elUsuario.textContent = user.displayName || "Usuario";
-      console.error(e);
     }
   });
 
   function genOrderId() {
-    const rnd = Math.random().toString(36).slice(2, 8).toUpperCase();
-    const ts = Date.now().toString(36).toUpperCase();
-    return `YP-${ts}-${rnd}`;
+    return `YP-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substr(2,5).toUpperCase()}`;
   }
 
   btn.addEventListener("click", async () => {
     const nombre = document.getElementById("nombreTitular").value.trim();
     const codigo = document.getElementById("codigoSeguridad").value.trim();
-    const uid = elUID.value.trim();
-    const monto = 37;
-    const creditos = 310;
 
-    if (btn.disabled) {
+    if (!uidGlobal) {
       alert("⚠️ Inicia sesión para continuar.");
       return;
     }
@@ -130,11 +130,11 @@
     const orderId = genOrderId();
     const payload = {
       id: orderId,
-      uid,
+      uid: uidGlobal,
       titular: nombre,
       codigo,
-      monto,
-      creditos,
+      monto: 37,
+      creditos: 310,
       estado: "pendiente",
       createdAt: Date.now()
     };
@@ -142,20 +142,22 @@
     try {
       await update(ref(db), { [`pagos-pendientes/${orderId}`]: payload });
 
-      // Mensajes secuenciales
-      alert("⏳ Procesando datos...");
+      // Modal mensajes secuenciales
+      modal.style.display = "flex";
+      modalText.textContent = "⏳ Procesando datos...";
       setTimeout(() => {
-        alert("💳 Procesando pago...");
+        modalText.textContent = "💳 Procesando pago...";
         setTimeout(() => {
-          alert("✅ Su pago fue enviado con éxito y está en revisión de los administradores.");
+          modalText.textContent = "✅ Pago enviado con éxito. Está en revisión de los administradores.";
+          setTimeout(() => { modal.style.display = "none"; }, 3000);
         }, 3000);
       }, 2000);
 
     } catch (err) {
-      console.error(err);
       alert("❌ Error al enviar el pago. Intente nuevamente.");
+      console.error(err);
     }
   });
 </script>
 </body>
-</html>
+  </html>
