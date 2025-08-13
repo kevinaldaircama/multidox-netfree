@@ -536,7 +536,35 @@ firebase.auth().onAuthStateChanged(user => {
     console.log('No hay usuario autenticado.');
   }
 });
-  
+  const banner = document.getElementById('saldoLowBanner');
+  const saldoTxt = document.getElementById('saldoRestante');
+  const irPlanesBtn = document.getElementById('irPlanesBtn');
+
+  irPlanesBtn.addEventListener('click', () => {
+    window.location.href = 'planes.html';
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // Sin sesión => no mostrar banner
+      banner.hidden = true;
+      return;
+    }
+    const path = `usuarios/${user.uid}/comisionesTotales`;
+    onValue(ref(db, path), (snap) => {
+      const valor = Number(snap.val() ?? 0);
+      // Mostrar si está entre 0 y 10 (inclusive)
+      if (valor >= 0 && valor <= 10) {
+        saldoTxt.textContent = valor.toFixed(0);
+        banner.hidden = false;
+      } else {
+        banner.hidden = true;
+      }
+    }, () => {
+      // Si hay error leyendo, oculta el banner
+      banner.hidden = true;
+    });
+  });
 </script>            
 </body>            
       </html>
