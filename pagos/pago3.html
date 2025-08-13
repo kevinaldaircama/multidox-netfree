@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pago con Yape · Transferencia VIP</title>
+
+  <link rel="icon" href="3440119_ico.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f2027" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --bg:#f7f7f9; --card:#fff; --text:#0b1220; --muted:#657489; --border:#e9edf3;
+      --ok:#14a44d; --okHover:#0e7a36; --ring:rgba(20,164,77,.2); --brand:#a14acb;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg); margin:0; display:grid; place-items:center; padding:16px; color:var(--text);
+    }
+    .card{
+      width:100%; max-width:420px; background:var(--card); border-radius:20px; padding:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08); border:1px solid var(--border);
+    }
+    .header{
+      background:#f8f6fc; border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:14px;
+      display:grid; gap:6px; font-size:.95rem;
+    }
+    .header .user{ font-weight:600 }
+    .header .total{ font-size:1.1rem; font-weight:800; color:var(--ok) }
+    h2{ text-align:center; font-size:1.25rem; margin:10px 0 6px }
+    p.lead{ text-align:center; font-size:.95rem; color:var(--muted); margin:0 0 6px }
+    .qr{
+      border:2px dashed var(--brand); border-radius:14px; padding:14px; text-align:center;
+    }
+    .qr img{ max-width:220px; width:100%; height:auto; border-radius:12px }
+    .qr .owner{ margin-top:6px; color:#334; font-size:.95rem }
+    .btn{
+      display:block; width:100%; background:var(--ok); color:#fff; font-weight:800; font-size:1rem;
+      padding:12px; border:none; border-radius:10px; margin-top:14px; cursor:pointer;
+      transition:transform .1s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover{ background:var(--okHover); transform:translateY(-1px) }
+    .btn:focus{ outline:none; box-shadow:0 0 0 4px var(--ring) }
+    .credits{
+      background:#f8f6fc; border:1px solid var(--border); border-radius:12px; padding:10px; margin-top:12px;
+      text-align:center; font-size:.95rem;
+    }
+    .credits strong{ color:var(--brand) }
+    .secure{ text-align:center; font-size:.8rem; margin-top:10px; color:#667; }
+
+    /* Modal */
+    #modalPago{
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+      z-index:999; justify-content:center; align-items:center;
+    }
+    #modalPago .modal-content{
+      background:white; width:90%; max-width:800px; height:80%;
+      border-radius:12px; overflow:hidden; display:flex; flex-direction:column;
+    }
+    #modalPago header{
+      padding:10px; background:#0f2027; color:white;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #modalPago iframe{
+      flex:1; border:none;
+    }
+    #modalPago button{
+      background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;
+    }
+  </style>
+
+  <!-- Firebase v9 compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js" defer></script>
+</head>
+<body>
+  <div class="card" role="region" aria-label="Pago con Yape">
+    <div class="header">
+      <span id="usuario" class="user">Usuario: cargando…</span>
+      <span class="total" id="totalPagar">Total a pagar: S/ 45.00</span>
+    </div>
+
+    <h2>Escanea con Yape</h2>
+    <p class="lead">Abre tu app Yape y escanea este código o escribe el número</p>
+    <p class="lead">titular: luz</p>
+    
+    <div class="qr" aria-live="polite">
+      <img src="https://yapelite.netlify.app/imagen/qr.jpg" alt="Código QR de Yape" loading="lazy" decoding="async">
+      <div class="owner">934075884</div>
+    </div>
+
+    <button class="btn" id="btnPagado" type="button">✅ Ya pagué</button>
+
+    <div class="credits">
+      Créditos a recibir: <strong id="creditosTxt">120 créditos/plan premium</strong>
+    </div>
+
+    <div class="secure">
+      🔒 Pago 100% seguro · Tus datos viajan cifrados con SSL
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modalPago">
+    <div class="modal-content">
+      <header>
+        <strong>Verificación de Pago</strong>
+        <button onclick="cerrarModal()">✖</button>
+      </header>
+      <iframe id="iframePago" src=""></iframe>
+    </div>
+  </div>
+
+  <script>
+    // Firebase
+    window.addEventListener('DOMContentLoaded', () => {
+      const firebaseConfig = {
+        apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
+        authDomain: "transferencia-88fd7.firebaseapp.com",
+        projectId: "transferencia-88fd7",
+        storageBucket: "transferencia-88fd7.appspot.com",
+        appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
+      };
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          const nombre = user.displayName || user.email || user.uid;
+          document.getElementById("usuario").textContent = `Usuario: ${String(nombre).toUpperCase()}`;
+        } else {
+          document.getElementById("usuario").textContent = "Usuario: no autenticado";
+        }
+      });
+    });
+
+    // Abrir modal
+    document.getElementById('btnPagado').addEventListener('click', () => {
+      document.getElementById('iframePago').src = 'veri/comprobante1'; // ← cambia por tu página
+      document.getElementById('modalPago').style.display = 'flex';
+    });
+
+    // Cerrar modal
+    function cerrarModal(){
+      document.getElementById('modalPago').style.display = 'none';
+      document.getElementById('iframePago').src = "";
+    }
+  </script>
+</body>
+    </html>
