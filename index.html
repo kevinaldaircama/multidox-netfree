@@ -192,7 +192,7 @@
     if (id === 'btnRegister') {
       // Pasamos ref si existe
       const ref = getQueryParam('ref') || localStorage.getItem('multidox-netfree_ref') || '';
-      const url = new URL('planes', window.location.href);
+      const url = new URL('registro', window.location.href);
       if (ref) url.searchParams.set('ref', ref);
       window.location.href = url.toString();
     }
