@@ -330,7 +330,7 @@
     
       // Construye el enlace público tipo /referido/{refId}    
       const origin = window.location.origin || (location.protocol + '//' + location.host);    
-      $('#referralLink').value = `${origin}/registro.html?ref=${refId}`;    
+      $('#referralLink').value = `${origin}/registro?ref=${refId}`;    
     
       // Escucha cambios de los referidos    
       db.ref(`referidos/${refId}`).on('value', (snap)=>{    
