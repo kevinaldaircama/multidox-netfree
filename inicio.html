@@ -162,6 +162,7 @@
       color: white;            
       border: 1px solid #444;            
     }   
+    
     /* Banner de saldo bajo */
 .saldo-banner{
   position: fixed;
@@ -229,7 +230,13 @@
       <p>Encuentra conexiones, construye historias: tu búsqueda comienza aquí.</p>            
       <a href="planes" class="btn-credits">Comprar Créditos <i class="fas fa-coins"></i></a>            
     </div>            
-            
+             <!-- Aviso de saldo bajo -->
+<div id="saldoLowBanner" class="saldo-banner" hidden>
+  <div class="saldo-content">
+    <span>⚠️ Saldo bajo: te quedan <strong id="saldoRestante">0</strong> créditos.</span>
+    <button id="irPlanesBtn" class="saldo-btn" type="button">Recargar ahora</button>
+  </div>
+</div>
     <div class="row">            
       <div class="col-md-6 credit-box">            
         <h5>Saldo Total</h5>            
@@ -243,13 +250,7 @@
     <div class="progress-bar bg-danger" id="recargasProgress" style="width:0%"></div>
   </div>
 </div>            
- <!-- Aviso de saldo bajo -->
-<div id="saldoLowBanner" class="saldo-banner" hidden>
-  <div class="saldo-content">
-    <span>⚠️ Saldo bajo: te quedan <strong id="saldoRestante">0</strong> créditos.</span>
-    <button id="irPlanesBtn" class="saldo-btn" type="button">Recargar ahora</button>
-  </div>
-</div>           
+           
     <div class="text-center mt-3">            
       <a href="referido" class="btn-invite"><i class="fas fa-user-plus"></i> Invitar Amigos</a>            
       <p class="text-muted">Comparte tu enlace de referidos y obtén créditos por su recarga</p>            
