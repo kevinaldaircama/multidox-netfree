@@ -157,7 +157,7 @@
 
   // Clave de referido OFICIAL + compat legado
   const REF_KEY = 'multidox-netfree';
-  const LEGACY_KEYS = ['tvip_ref', 'ref'];
+  const LEGACY_KEYS = ['multidox-netfree_ref', 'ref'];
 
   function getStoredRef(){
     let ref = getParam('ref');
@@ -199,7 +199,7 @@
     // Si ya hay sesión, envía a inicio directo (evita registrarse dos veces)
     auth.onAuthStateChanged((user) => {
       if (user) {
-        const url = new URL('inicio.html', location.href);
+        const url = new URL('inicio', location.href);
         const ref = getStoredRef(); if (ref) url.searchParams.set('ref', ref);
         location.replace(url.toString());
       }
