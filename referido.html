@@ -315,7 +315,7 @@
     auth.onAuthStateChanged(async (user)=>{    
       if (!user) {    
         // Ajusta si tu login se llama distinto    
-        return location.replace('login.html');    
+        return location.replace('login');    
       }    
       userUid = user.uid;    
     
@@ -330,7 +330,7 @@
     
       // Construye el enlace público tipo /referido/{refId}    
       const origin = window.location.origin || (location.protocol + '//' + location.host);    
-      $('#referralLink').value = `${origin}/referido/${refId}`;    
+      $('#referralLink').value = `${origin}/registro.html?ref=${refId}`;    
     
       // Escucha cambios de los referidos    
       db.ref(`referidos/${refId}`).on('value', (snap)=>{    
