@@ -1,418 +1,195 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Panel de Referidos · Transferencia VIP</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel de Referidos</title>
 
-  <link rel="icon" href="3440119_ico.png" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0f2027" />
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg1:#e0eafc; --bg2:#cfdef3;
+  --card: #ffffffdd; --text:#0b1220; --muted:#586a84; --border:#e5eaf0;
+  --brand1:#5c6bc0; --brand2:#3f51b5; --ring: rgba(92,107,192,.25);
+  --good1:#43a047; --good2:#66bb6a; --warn1:#fdd835; --warn2:#fff176; --vio1:#ab47bc; --vio2:#ce93d8;
+}
+* { box-sizing:border-box; margin:0; padding:0 }
+html,body { height:100%; font-family:Inter, system-ui, sans-serif; }
+body {
+  background: linear-gradient(120deg, var(--bg1), var(--bg2));
+  color: var(--text);
+}
 
-  <style>
-    :root{
-      --bg1:#e0eafc; --bg2:#cfdef3;
-      --card:#ffffffdd; --text:#0b1220; --muted:#586a84; --border:#e5eaf0;
-      --brand1:#5c6bc0; --brand2:#3f51b5; --ring: rgba(92,107,192,.25);
-      --good1:#43a047; --good2:#66bb6a; --warn1:#fdd835; --warn2:#fff176; --vio1:#ab47bc; --vio2:#ce93d8;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: linear-gradient(120deg, var(--bg1), var(--bg2));
-      margin:0; color:var(--text);
-    }
-    .container{
-      max-width:1140px; margin:32px auto; padding:24px;
-      background:var(--card); backdrop-filter: blur(8px);
-      border-radius:16px; border:1px solid var(--border);
-      box-shadow:0 14px 40px rgba(0,0,0,.12); animation: fadeIn .6s ease;
-    }
-    h2{ text-align:center; color:#2e3a59; margin:8px 0 18px; }
+.container{
+  max-width: 1140px; margin: 32px auto; padding: 24px;
+  background: var(--card); backdrop-filter: blur(8px);
+  border-radius: 16px; border:1px solid var(--border);
+  box-shadow: 0 14px 40px rgba(0,0,0,.12); animation: fadeIn .6s ease;
+}
+h2 { text-align:center; color:#2e3a59; margin-bottom: 18px; }
 
-    .ref-link,.filters{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px; }
-    .ref-link input,.filters input,.filters select{
-      flex:1; padding:12px; border-radius:10px; border:1px solid #cfd7e3;
-      outline:none; transition: box-shadow .15s ease, border-color .15s ease;
-    }
-    .ref-link input:focus,.filters input:focus,.filters select:focus{
-      border-color: var(--brand1); box-shadow: 0 0 0 4px var(--ring);
-    }
-    .btn{
-      background: linear-gradient(135deg, var(--brand1), var(--brand2));
-      color:#fff; border:none; padding:12px 18px; border-radius:10px; cursor:pointer;
-      transition: transform .15s ease, filter .2s ease;
-    }
-    .btn:hover{ transform: translateY(-1px); filter:saturate(1.05) }
-    .btn.secondary{ background:#fff; border:1px solid #cfd7e3; color:#102033 }
-    .btn.secondary:hover{ box-shadow:0 0 0 4px rgba(0,0,0,.05) }
-
-    .stats,.comisiones{ display:flex; flex-wrap:wrap; gap:16px; margin: 10px 0 18px; }
-    .card{
-      flex:1 1 260px; min-width:220px; padding:22px; border-radius:14px; color:#fff; text-align:center; transition: transform .2s ease;
-    }
-    .card:hover{ transform: translateY(-3px) }
-    .blue{ background: linear-gradient(135deg, var(--brand2), var(--brand1)) }
-    .green{ background: linear-gradient(135deg, var(--good1), var(--good2)) }
-    .yellow{ background: linear-gradient(135deg, var(--warn1), var(--warn2)); color:#3a3a3a }
-    .purple{ background: linear-gradient(135deg, var(--vio1), var(--vio2)) }
-    .purple .btn{ margin-top:12px; background: rgba(255,255,255,.15); border:1px solid #fff }
-
-    .table-container{ overflow-x:auto; border-radius:10px; }
-    table{ width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; }
-    thead th{
-      background: var(--brand1); color:white; text-align:left; padding:12px; position:sticky; top:0;
-    }
-    tbody td{ padding:12px; border-bottom:1px solid #eef1f6; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .no-data{ text-align:center; padding:36px; color:#7b8aa5; font-style:italic }
-
-    /* Modal */
-    #modal{ display:none; position:fixed; inset:0; background:rgba(33,33,33,.7); z-index:20; align-items:center; justify-content:center }
-    .modal-content{
-      background:#fff; padding:24px 22px; border-radius:12px; text-align:center; width:min(420px, 92%);
-      box-shadow: 0 20px 50px rgba(0,0,0,.3);
-    }
-    .modal-actions{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap }
-    .yes{ background: linear-gradient(135deg, var(--good1), var(--good2)) }
-    .no{ background: #e53935 }
-
-    .pill{ border:1px dashed #cfd7e3; border-radius:999px; padding:8px 12px; background:#fff; color:#102033 }
-
-    @keyframes fadeIn{from{opacity:0; transform:translateY(20px)} to{opacity:1; transform:translateY(0)}}
-
-    @media (max-width: 768px){
-      .stats,.comisiones,.ref-link,.filters{ flex-direction:column }
-      .card{ flex:1 1 100% }
-      thead th, tbody td { font-size:14px; padding:10px; }
-    }
-  </style>
+input, select {
+  padding: 12px; border-radius:10px; border:1px solid #cfd7e3;
+  margin-bottom: 12px; font-size: 1rem;
+}
+input:focus, select:focus {
+  border-color: var(--brand1);
+  box-shadow: 0 0 0 4px var(--ring);
+}
+.btn {
+  background: linear-gradient(135deg, var(--brand1), var(--brand2));
+  color:#fff; border:none; padding:12px 18px; border-radius:10px;
+  cursor:pointer;
+}
+.btn.secondary { background:#fff; border:1px solid #cfd7e3; color:#102033; }
+.stats, .comisiones { display:flex; flex-wrap:wrap; gap:16px; margin-bottom: 18px; }
+.card { flex:1 1 260px; padding:22px; border-radius:14px; color:#fff; text-align:center; }
+.blue{ background: linear-gradient(135deg, var(--brand2), var(--brand1)) }
+.green{ background: linear-gradient(135deg, var(--good1), var(--good2)) }
+.yellow{ background: linear-gradient(135deg, var(--warn1), var(--warn2)); color:#3a3a3a }
+.purple{ background: linear-gradient(135deg, var(--vio1), var(--vio2)) }
+.table-container { overflow-x:auto; border-radius:10px; }
+table { width:100%; border-collapse:collapse; background:#fff; }
+thead th { background: var(--brand1); color:white; padding:12px; }
+tbody td { padding:12px; border-bottom:1px solid #eef1f6; }
+.no-data{ text-align:center; padding:36px; color:#7b8aa5; }
+#modal { display:none; position:fixed; inset:0; background:rgba(33,33,33,.7);
+  z-index:20; align-items:center; justify-content:center;
+}
+.modal-content { background:#fff; padding:24px 22px; border-radius:12px; text-align:center; width:min(420px, 92%); }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h2>Panel de Referidos</h2>
+<div class="container">
+  <h2>Panel de Referidos</h2>
 
-    <div class="ref-link" role="region" aria-label="Tu enlace de referido">
-      <input type="text" id="referralLink" readonly aria-label="Enlace de referido" />
-      <button class="btn" id="copyBtn" type="button">Copiar</button>
-      <span class="pill" id="copiedHint" hidden>¡Copiado!</span>
+  <div>
+    <input type="text" id="referralLink" readonly>
+    <button class="btn" id="copyBtn">Copiar</button>
+  </div>
+
+  <div class="stats">
+    <div class="card blue">
+      <h3>Total Referidos</h3>
+      <p id="totalReferidos">0</p>
     </div>
-
-    <div class="stats">
-      <div class="card blue">
-        <h3>Total Referidos</h3>
-        <p id="totalReferidos">0</p>
-      </div>
-      <div class="card green">
-        <h3>Referidos Activos</h3>
-        <p id="referidosActivos">0</p>
-      </div>
-    </div>
-
-    <div class="comisiones">
-      <div class="card yellow">
-        <h3>Comisiones Totales</h3>
-        <p id="comisionesTotales">0.00 créditos</p>
-      </div>
-      <div class="card purple">
-        <h3>Comisiones Pendientes</h3>
-        <p id="comisionesPendientes">0.00</p>
-        <button id="btnCobrar" class="btn" type="button">Cobrar Comisiones</button>
-      </div>
-    </div>
-
-    <div class="filters" role="region" aria-label="Filtros">
-      <input type="search" id="busquedaInput" placeholder="Buscar por nombre o correo…" aria-label="Buscar" />
-      <select id="ordenSelect" aria-label="Ordenar">
-        <option value="recientes">Más recientes</option>
-        <option value="antiguos">Más antiguos</option>
-      </select>
-      <button id="saldoTotal" class="btn secondary" type="button">Mi saldo actual: 🪙 0</button>
-      <button id="btnRecargas" class="btn secondary" type="button">Mis Recargas</button>
-    </div>
-
-    <div class="table-container">
-      <table aria-label="Tabla de referidos">
-        <thead>
-          <tr>
-            <th>Usuario / Correo</th>
-            <th>Fecha Registro</th>
-            <th>Estado</th>
-            <th>Saldo</th>
-            <th>Recargas</th>
-            <th>Comisión</th>
-            <th>Última Recarga</th>
-          </tr>
-        </thead>
-        <tbody id="referidosTable">
-          <tr><td colspan="7" class="no-data">No se encontraron referidos<br><small>Comparte tu enlace para empezar a ganar</small></td></tr>
-        </tbody>
-      </table>
+    <div class="card green">
+      <h3>Referidos Activos</h3>
+      <p id="referidosActivos">0</p>
     </div>
   </div>
 
-  <!-- Modal -->
-  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-content">
-      <h3 id="modalTitle">¿Deseas cobrar tus comisiones pendientes?</h3>
-      <p>Se sumarán a tu saldo total y se pondrán a cero las pendientes.</p>
-      <div class="modal-actions">
-        <button class="btn yes" id="confirmCobrar" type="button">Sí, cobrar</button>
-        <button class="btn no" id="cancelCobrar" type="button">Cancelar</button>
-      </div>
+  <div class="comisiones">
+    <div class="card yellow">
+      <h3>Comisiones Totales</h3>
+      <p id="comisionesTotales">0.00 créditos</p>
+    </div>
+    <div class="card purple">
+      <h3>Comisiones Pendientes</h3>
+      <p id="comisionesPendientes">0.00</p>
+      <button id="btnCobrar" class="btn">Cobrar Comisiones</button>
     </div>
   </div>
 
-  <!-- Firebase compat -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario / Correo</th>
+          <th>Fecha Registro</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="referidosTable">
+        <tr><td colspan="3" class="no-data">No se encontraron referidos</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-  <script>
-    // ---------- Firebase ----------
-    const firebaseConfig = {
-      apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
-      authDomain: "transferencia-88fd7.firebaseapp.com",
-      databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
-      projectId: "transferencia-88fd7",
-      storageBucket: "transferencia-88fd7.appspot.com",
-      messagingSenderId: "343352831024",
-      appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
-      measurementId: "G-LNX1B0RLK7"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db   = firebase.database();
+<!-- Modal -->
+<div id="modal">
+  <div class="modal-content">
+    <h3>¿Deseas cobrar tus comisiones pendientes?</h3>
+    <button class="btn" id="confirmCobrar">Sí, cobrar</button>
+    <button class="btn secondary" id="cancelCobrar">Cancelar</button>
+  </div>
+</div>
 
-    // ---------- Estado UI ----------
-    const $  = (s)=>document.querySelector(s);
-    const $$ = (s)=>document.querySelectorAll(s);
-    const tableBody   = $('#referidosTable');
-    const totalEl     = $('#totalReferidos');
-    const activosEl   = $('#referidosActivos');
-    const pendientesEl= $('#comisionesPendientes');
-    const totalesEl   = $('#comisionesTotales');
-    const saldoBtn    = $('#saldoTotal');
-    const ordenSel    = $('#ordenSelect');
-    const searchInput = $('#busquedaInput');
-    const copiedHint  = $('#copiedHint');
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
+  authDomain: "transferencia-88fd7.firebaseapp.com",
+  databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
+  projectId: "transferencia-88fd7",
+  storageBucket: "transferencia-88fd7.appspot.com",
+  messagingSenderId: "343352831024",
+  appId: "1:343352831024:web:9ac2d08b41874b15e611f5"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-    let referidosArray = [];
-    let refKeyUsada = null; // clave “dueño” realmente usada (username o referidoId)
-    let userUid = null;
-    let detach = null; // para soltar listener si cambiamos de ruta
+const $ = s=>document.querySelector(s);
+let usernameGlobal = null;
 
-    // ---------- Utilidades ----------
-    function formatMoney(v){ return (Number(v)||0).toFixed(2); }
-    function byDate(a,b,desc=true){
-      const A = new Date(a.fecha || a.fechaAlta || 0).getTime();
-      const B = new Date(b.fecha || b.fechaAlta || 0).getTime();
-      return desc? (B-A) : (A-B);
-    }
-    function debounce(fn,ms=250){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args),ms) } }
+// Copiar enlace
+$('#copyBtn').onclick = async ()=>{
+  await navigator.clipboard.writeText($('#referralLink').value);
+  alert('Enlace copiado');
+};
 
-    function render(list){
-      tableBody.innerHTML = '';
-      if (!list.length){
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
-        td.colSpan = 7; td.className = 'no-data';
-        td.innerHTML = 'No se encontraron referidos<br><small>Comparte tu enlace para empezar a ganar</small>';
-        tr.appendChild(td); tableBody.appendChild(tr); return;
-      }
-      for (const r of list){
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td title="${(r.nombre||'') + (r.correo? ' · '+r.correo : '')}">${r.nombre || r.correo || '-'}</td>
-          <td>${r.fecha || r.fechaAlta ? new Date(r.fecha || r.fechaAlta).toLocaleDateString() : '-'}</td>
-          <td>${r.estado || '-'}</td>
-          <td>${formatMoney(r.saldo)}</td>
-          <td>${r.recargas ?? 0}</td>
-          <td>${r.comision || '0.00'}</td>
-          <td>${r.ultima || '-'}</td>
-        `;
-        tableBody.appendChild(tr);
-      }
-    }
-
-    function applyFilters(){
-      const q = (searchInput.value||'').toLowerCase().trim();
-      const ord = ordenSel.value;
-      let list = [...referidosArray];
-      if (q){
-        list = list.filter(r=>{
-          const a = (r.nombre||'').toLowerCase();
-          const b = (r.correo||'').toLowerCase();
-          return a.includes(q) || b.includes(q);
-        });
-      }
-      list.sort((a,b)=>byDate(a,b, ord!=='antiguos'));
-      render(list);
-    }
-    const applyFiltersDebounced = debounce(applyFilters, 180);
-    searchInput.addEventListener('input', applyFiltersDebounced);
-    ordenSel.addEventListener('change', applyFilters);
-
-    // Copiar enlace
-    $('#copyBtn').addEventListener('click', async ()=>{
-      const v = $('#referralLink').value;
-      try{ await navigator.clipboard.writeText(v); }
-      catch(e){ const input = $('#referralLink'); input.select(); document.execCommand('copy'); }
-      copiedHint.hidden = false; setTimeout(()=> copiedHint.hidden = true, 1200);
+// Cobrar comisiones
+$('#btnCobrar').onclick = ()=> $('#modal').style.display='flex';
+$('#cancelCobrar').onclick = ()=> $('#modal').style.display='none';
+$('#confirmCobrar').onclick = async ()=>{
+  const userSnap = await db.ref(`usuarios/${usernameGlobal}`).once('value');
+  const u = userSnap.val() || {};
+  const pend = Number(u.comisionesPendientes||0);
+  const tot = Number(u.comisionesTotales||0);
+  if(pend>0){
+    await db.ref(`usuarios/${usernameGlobal}`).update({
+      comisionesPendientes:0,
+      comisionesTotales: tot + pend
     });
+  }
+  $('#modal').style.display='none';
+};
 
-    // Modal
-    const modal = $('#modal');
-    const openModal  = ()=>{ modal.style.display='flex'; modal.querySelector('.modal-content').focus?.(); }
-    const closeModal = ()=>{ modal.style.display='none'; }
-    $('#btnCobrar').addEventListener('click', openModal);
-    $('#cancelCobrar').addEventListener('click', closeModal);
-    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+// Cargar datos
+auth.onAuthStateChanged(async user=>{
+  if(!user) return location.href='login.html';
+  const userDataSnap = await db.ref(`usuarios`).orderByChild('correo').equalTo(user.email).once('value');
+  let username = null;
+  userDataSnap.forEach(s=>{ username = s.val().nombre; });
+  if(!username) return alert('No se encontró tu usuario');
 
-    // Cobrar comisiones
-    $('#confirmCobrar').addEventListener('click', async ()=>{
-      if (!userUid) return;
-      try{
-        const snap = await db.ref(`usuarios/${userUid}`).once('value');
-        const u = snap.val() || {};
-        const pendientes = Number(u.comisionesPendientes||0);
-        const totales    = Number(u.comisionesTotales||0);
-        if (pendientes <= 0) { closeModal(); return; }
+  usernameGlobal = username;
+  $('#referralLink').value = `${location.origin}/referido/${username}`;
 
-        const updates = {};
-        updates[`usuarios/${userUid}/comisionesPendientes`] = 0;
-        updates[`usuarios/${userUid}/comisionesTotales`]   = (totales + pendientes);
+  db.ref(`referidos/${username}`).on('value', snap=>{
+    const data = snap.val() || {};
+    const list = Object.values(data);
+    $('#totalReferidos').textContent = list.length;
+    const activos = list.filter(r=>r.estado==='activo');
+    $('#referidosActivos').textContent = activos.length;
+    $('#comisionesPendientes').textContent = (activos.length*10).toFixed(2);
+    $('#referidosTable').innerHTML = list.map(r=>`
+      <tr>
+        <td>${r.nombre || '-'} / ${r.correo || '-'}</td>
+        <td>${r.fecha || '-'}</td>
+        <td>${r.estado || '-'}</td>
+      </tr>`).join('');
+    db.ref(`usuarios/${username}`).update({comisionesPendientes: activos.length*10});
+  });
 
-        if (refKeyUsada){
-          const refsSnap = await db.ref(`referido/${refKeyUsada}`).once('value');
-          const fallbackSnap = await db.ref(`referidos/${refKeyUsada}`).once('value');
-          const refs = refsSnap.exists() ? refsSnap.val() : (fallbackSnap.val()||{});
-          Object.keys(refs).forEach(k=>{
-            const r = refs[k];
-            if (r && r.estado === 'activo' && r.comision !== 'Cobrado'){
-              updates[`referido/${refKeyUsada}/${k}/comision`]  = 'Cobrado';
-              updates[`referidos/${refKeyUsada}/${k}/comision`] = 'Cobrado';
-            }
-          });
-        }
-        await db.ref().update(updates);
-      }catch(err){
-        console.error('[Cobrar] error', err);
-        alert('No se pudo cobrar ahora. Intenta nuevamente.');
-      }finally{
-        closeModal();
-      }
-    });
-
-    // Busca la primera ruta de referidos disponible según tu DB
-    async function detectarRutaReferidos(claves){
-      for (const path of claves){
-        const s = await db.ref(path).limitToFirst(1).once('value');
-        if (s.exists()) return path;
-      }
-      // Si ninguna existe, devolvemos la primera para crearla al vuelo
-      return claves[0];
-    }
-
-    // Conecta listener a la ruta de referidos elegida
-    function escucharReferidosEn(path){
-      // Suelta listener previo
-      if (detach) { detach(); detach = null; }
-      const ref = db.ref(path);
-      const cb = (snap)=>{
-        const data = snap.val() || {};
-        const list = [];
-        let total = 0, activos = 0, pendientes = 0;
-        Object.keys(data).forEach(k=>{
-          const r = data[k] || {};
-          total++;
-          if (r.estado === 'activo' && r.comision !== 'Cobrado'){
-            activos++;
-            pendientes += 10; // regla: 10 créditos por activo pendiente
-          }
-          list.push({
-            nombre: r.nombre,
-            correo: r.correo,
-            fecha:  r.fecha,
-            fechaAlta: r.fechaAlta,
-            estado: r.estado,
-            saldo:  r.saldo || 0,
-            recargas: r.recargas || 0,
-            comision: r.comision || '0.00',
-            ultima: r.ultima || '-'
-          });
-        });
-        referidosArray = list;
-        totalEl.textContent   = total;
-        activosEl.textContent = activos;
-        // Actualiza pendientes en el usuario
-        db.ref(`usuarios/${userUid}/comisionesPendientes`).set(pendientes);
-        applyFilters();
-      };
-      ref.on('value', cb);
-      detach = ()=> ref.off('value', cb);
-    }
-
-    // ---------- Inicio: sesión y listeners ----------
-    auth.onAuthStateChanged(async (user)=>{
-      if (!user) return location.replace('login.html');
-      userUid = user.uid;
-
-      // Trae el nombre de usuario (clave pública)
-      const userSnap = await db.ref(`usuarios/${userUid}`).once('value');
-      const userInfo = userSnap.val() || {};
-      const ownerUsername = (userInfo.nombre || '').trim();
-
-      // Fallback: referidoId (antiguo)
-      let refId = (userInfo.referidoId || '').trim();
-      if (!refId) {
-        refId = userUid.slice(0,2) + Math.floor(Math.random()*100) + userUid.slice(-2);
-        await db.ref(`usuarios/${userUid}/referidoId`).set(refId);
-      }
-
-      // Arma las claves candidatas en orden de preferencia (por usuario)
-      const candidatas = [];
-      if (ownerUsername) {
-        candidatas.push(`referido/${ownerUsername}`);
-        candidatas.push(`referidos/${ownerUsername}`);
-      }
-      // Compatibilidad: esquema anterior por referidoId
-      candidatas.push(`referidos/${refId}`);
-
-      // Detecta y escucha
-      const rutaElegida = await detectarRutaReferidos(candidatas);
-      // Guarda la clave usada (último segmento)
-      refKeyUsada = rutaElegida.split('/')[1];
-      escucharReferidosEn(rutaElegida);
-
-      // Enlace público
-      const origin = window.location.origin || (location.protocol + '//' + location.host);
-      const linkKey = ownerUsername || refId;
-      $('#referralLink').value = `${origin}/referido/${linkKey}`;
-
-      // Información de saldos
-      db.ref(`usuarios/${userUid}`).on('value', (snap)=>{
-        const u = snap.val() || {};
-        const totales    = Number(u.comisionesTotales || 0);
-        const pendientes = Number(u.comisionesPendientes || 0);
-        totalesEl.textContent     = `${formatMoney(totales)} créditos`;
-        pendientesEl.textContent  = `${formatMoney(pendientes)}`;
-        saldoBtn.textContent      = `Mi saldo actual: 🪙 ${formatMoney(totales + pendientes)}`;
-
-        const btn = $('#btnCobrar');
-        if (pendientes <= 0){
-          btn.disabled = true; btn.style.opacity = .6; btn.style.cursor = 'not-allowed'; btn.textContent = 'No hay comisiones por cobrar';
-        }else{
-          btn.disabled = false; btn.style.opacity = 1; btn.style.cursor = 'pointer'; btn.textContent = 'Cobrar Comisiones';
-        }
-      });
-
-      // Botón "Mis Recargas"
-      $('#btnRecargas').addEventListener('click', ()=> location.href = 'recargas.html');
-    });
-  </script>
+  db.ref(`usuarios/${username}`).on('value', s=>{
+    const u = s.val() || {};
+    $('#comisionesTotales').textContent = (u.comisionesTotales||0).toFixed(2)+' créditos';
+  });
+});
+</script>
 </body>
-                </html>
+</html>
