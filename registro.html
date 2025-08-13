@@ -150,46 +150,21 @@
 <script>
   // ---------- Helpers ----------
   const $ = (s) => document.querySelector(s);
-  const showAlert = (msg) => { const b = $('#alertBox'); if(!b) return; b.textContent = msg; b.classList.add('show'); };
-  const clearAlert = () => { const b = $('#alertBox'); if(!b) return; b.textContent = ''; b.classList.remove('show'); };
+  const showAlert = (msg) => { const b = $('#alertBox'); b.textContent = msg; b.classList.add('show'); };
+  const clearAlert = () => { const b = $('#alertBox'); b.textContent = ''; b.classList.remove('show'); };
+  const getParam = (k) => new URLSearchParams(location.search).get(k);
 
-  // Lee ?ref= o /referido/{codigo}
-  function getReferralFromURL(){
-    const qs = new URLSearchParams(location.search);
-    const qRef = qs.get('ref');
-    if (qRef) return qRef;
-
-    // Ruta tipo /referido/ABC123 o /algo/referido/ABC123
-    const parts = location.pathname.split('/').filter(Boolean);
-    const idx = parts.findIndex(p => p.toLowerCase() === 'referido');
-    if (idx >= 0 && parts[idx+1]) {
-      return parts[idx+1];
-    }
-    return '';
-  }
-
+  // Guardar y obtener el código de referido desde URL / localStorage
   const REF_KEY = 'multidox-netfree';
   function getStoredRef(){
-    try { return localStorage.getItem(REF_KEY) || ''; } catch(e){ return ''; }
+    let ref = getParam('ref');
+    if (!ref) { try { ref = localStorage.getItem(REF_KEY); } catch(e){} }
+    return ref || '';
   }
-  function setStoredRef(code){
-    try {
-      localStorage.setItem(REF_KEY, code);
-      localStorage.removeItem('tvip_ref'); // limpiar legado
-    } catch(e){}
-  }
-
-  // Captura y guarda el referido si viene en la URL
   (function captureReferral(){
-    const code = getReferralFromURL();
-    if (code) setStoredRef(code);
+    const ref = getParam('ref');
+    if (ref) { try { localStorage.setItem(REF_KEY, ref); } catch(e){} }
   })();
-
-  // Toggle pass
-  $('#togglePass')?.addEventListener('click', () => {
-    const i = $('#regPass'); if (!i) return;
-    i.type = (i.type === 'password') ? 'text' : 'password';
-  });
 
   // ---------- Firebase ----------
   window.addEventListener('DOMContentLoaded', () => {
@@ -203,32 +178,26 @@
       appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
       measurementId: "G-LNX1B0RLK7"
     };
-    if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
 
     const auth = firebase.auth();
     const db   = firebase.database();
 
-    // Si ya hay sesión, redirige a inicio (preservando ref si existe)
+    // Si ya hay sesión activa, mandar a inicio
     auth.onAuthStateChanged((user) => {
       if (user) {
-        const url = new URL('inicio', location.href);
-        const refCode = getStoredRef();
-        if (refCode) url.searchParams.set('ref', refCode);
-        location.replace(url.toString());
+        location.replace('inicio.html');
       }
     });
 
-    // --------- UTIL: ¿username ya está tomado?
-    async function isUsernameTaken(username){
-      const snap = await db.ref('usuarios').orderByChild('nombre').equalTo(username).limitToFirst(1).once('value');
-      return snap.exists();
-    }
-
-    // --------- UTIL: resolver dueño del código de referido
-    // Busca en /usuarios por 'referidoId' == code y retorna {ownerUid, ownerData} o null
-    async function resolveRefOwnerByCode(code){
+    // --------- Buscar dueño del link de referido ---------
+    async function resolveRefOwnerByCode(code) {
       if (!code) return null;
-      const snap = await db.ref('usuarios').orderByChild('referidoId').equalTo(code).limitToFirst(1).once('value');
+      const snap = await db.ref('usuarios')
+        .orderByChild('referidoId')
+        .equalTo(code)
+        .limitToFirst(1)
+        .once('value');
       if (!snap.exists()) return null;
       const entries = snap.val();
       const ownerUid = Object.keys(entries)[0];
@@ -236,82 +205,57 @@
       return { ownerUid, ownerData };
     }
 
-    // --------- Guardar usuario y aplicar referidos/bonos
-    async function registrarUsuario({email, username, fullName, uid, isGoogle=false}){
-      const fechaISO = new Date().toISOString();
-      const fecha = fechaISO.split('T')[0];
+    // --------- Registrar usuario ---------
+    async function registrarUsuario({ email, username, fullName, uid, isGoogle=false }) {
+      const fecha = new Date().toISOString().split('T')[0];
+      const refCode = getStoredRef(); // Código de referido que vino en el link
 
-      const refCode = getStoredRef(); // código público, NO el UID
+      const creditosNuevo = refCode ? 5 : 5; // Créditos para el nuevo usuario
+      const referidoIdPropio = uid.slice(0,2) + Math.floor(Math.random()*100) + uid.slice(-2);
 
-      // Bono inicial para el nuevo usuario
-      const bonoNuevo = refCode ? 10 : 5; // ← ajusta si quieres otros valores
-
-      const dataUsuario = {
+      const data = {
         correo: email,
         nombre: username,
         nombreCompleto: fullName,
         fecha,
         estado: 'activo',
         recargas: 0,
-        comision: '10.00',
-        comisionesTotales: bonoNuevo,   // ← bono de bienvenida
-        comisionesPendientes: 0,
-        ultima: '-'
+        comision: '0.00',
+        comisionesTotales: creditosNuevo,
+        ultima: '-',
+        referidoId: referidoIdPropio
       };
-      if (isGoogle) dataUsuario.google = true;
+      if (isGoogle) data.google = true;
 
       const updates = {};
-      updates[`usuarios/${uid}`] = dataUsuario;
+      updates[`usuarios/${uid}`] = data;
 
-      // Si llegó con referido, resolvemos DUEÑO del código
+      // Si vino con referido, buscar al dueño y darle 10 créditos
       if (refCode) {
-        try {
-          const owner = await resolveRefOwnerByCode(refCode);
-          if (owner && owner.ownerUid) {
-            const ownerUid = owner.ownerUid;
-
-            // Registrar en /referidos/{codigo}/{nuevoUid}
-            updates[`referidos/${refCode}/${uid}`] = {
-              uid,
-              nombre: username,
-              correo: email,
-              fecha: fecha,
-              estado: 'activo',
-              comision: 'Pendiente', // o '0.00', como prefieras
-              saldo: 0,
-              recargas: 0,
-              ultima: '-'
-            };
-
-            // Sumar comisión al padrino (por ejemplo +2)
-            updates[`usuarios/${ownerUid}/comisionesTotales`] = firebase.database.ServerValue.increment(2);
-          } else {
-            console.warn('[Ref] Código sin dueño, se registra usuario sin beneficio a padrino.');
-          }
-        } catch(e) {
-          console.warn('[Ref] Error resolviendo dueño del código', e);
+        const owner = await resolveRefOwnerByCode(refCode);
+        if (owner && owner.ownerUid) {
+          updates[`referidos/${owner.ownerUid}/${uid}`] = {
+            uid,
+            nombre: username,
+            correo: email,
+            fechaAlta: Date.now(),
+            estado: 'activo'
+          };
+          updates[`usuarios/${owner.ownerUid}/comisionesTotales`] =
+            firebase.database.ServerValue.increment(10);
         }
       }
 
       await db.ref().update(updates);
     }
 
-    // --------- Redirige a login preservando ref
-    function goLogin(){
-      try { grecaptcha.reset(); } catch(e){}
-      const url = new URL('login.html', location.href);
-      const refCode = getStoredRef();
-      if (refCode) url.searchParams.set('ref', refCode);
-      location.assign(url.toString());
-    }
-
-    // ------- Registro con correo -------
+    // --------- Registro con correo ---------
     const form = $('#registerForm');
     const submitBtn = $('#submitBtn');
-    const btnTxt = submitBtn?.querySelector('.btn-text') || submitBtn;
-    const setLoading = (v)=>{ if (!submitBtn) return; submitBtn.disabled = v; btnTxt.textContent = v ? 'Creando cuenta…' : 'Registrarse'; };
+    const btnTxt = submitBtn.querySelector('.btn-text');
+    const setLoading = (v)=>{ submitBtn.disabled = v; btnTxt.textContent = v ? 'Creando cuenta…' : 'Registrarse'; };
 
-    form?.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault(); clearAlert(); setLoading(true);
       try {
         const username = $('#regUsername').value.trim();
@@ -319,26 +263,20 @@
         const email    = $('#regEmail').value.trim().toLowerCase();
         const pass     = $('#regPass').value;
         const accepted = $('#acceptPolicy').checked;
-        const recaptchaResponse = (typeof grecaptcha!=='undefined') ? grecaptcha.getResponse() : 'ok';
+        const recaptchaResponse = grecaptcha.getResponse();
 
         if (!recaptchaResponse) throw new Error('Por favor verifica que no eres un robot.');
         if (!accepted) throw new Error('Debes aceptar la política de privacidad.');
         if (username.length < 3) throw new Error('El nombre de usuario debe tener al menos 3 caracteres.');
         if (pass.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres.');
 
-        // Username único
-        if (await isUsernameTaken(username)) {
-          throw new Error('Ese nombre de usuario ya está en uso. Elige otro.');
-        }
-
         const cred = await auth.createUserWithEmailAndPassword(email, pass);
         await registrarUsuario({ email, username, fullName, uid: cred.user.uid, isGoogle:false });
 
         alert('Registro exitoso. Ahora puedes iniciar sesión.');
         await auth.signOut();
-        goLogin();
+        location.href = 'login.html';
       } catch(err){
-        console.error('[Registro error]', err);
         let msg = 'No se pudo completar el registro.';
         if (err.code === 'auth/email-already-in-use') msg = 'Ese correo ya está registrado.';
         else if (err.code === 'auth/invalid-email') msg = 'El correo no es válido.';
@@ -350,22 +288,18 @@
       }
     });
 
-    // ------- Registro con Google -------
-    $('#googleRegisterBtn')?.addEventListener('click', async () => {
+    // --------- Registro con Google ---------
+    $('#googleRegisterBtn').addEventListener('click', async () => {
       clearAlert(); setLoading(true);
       try {
         const provider = new firebase.auth.GoogleAuthProvider();
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
-
-        // Genera un username base único
-        let username = (user.email?.split('@')[0] || 'user') + Math.random().toString(36).slice(2,6);
-        while (await isUsernameTaken(username)) {
-          username = (user.email?.split('@')[0] || 'user') + Math.random().toString(36).slice(2,6);
-        }
+        const fallbackUser = (user.email?.split('@')[0] || 'user') + Math.random().toString(36).slice(2,6);
+        let username = fallbackUser;
 
         await registrarUsuario({
-          email: user.email || user.providerData?.[0]?.email || '',
+          email: user.email || '',
           username,
           fullName: user.displayName || username,
           uid: user.uid,
@@ -374,35 +308,13 @@
 
         alert('Cuenta creada con Google. Ahora puedes iniciar sesión.');
         await auth.signOut();
-        goLogin();
+        location.href = 'login.html';
       } catch(err){
-        console.error('[Google registro error]', err);
         showAlert('Error con Google: ' + (err.message || 'Intenta de nuevo.'));
       } finally {
         setLoading(false);
       }
     });
-
-    // Si venimos de redirect (iOS/Safari)
-    auth.getRedirectResult?.().then(async (res) => {
-      if (res && res.user) {
-        const user = res.user;
-        let username = (user.email?.split('@')[0] || 'user') + Math.random().toString(36).slice(2,6);
-        while (await isUsernameTaken(username)) {
-          username = (user.email?.split('@')[0] || 'user') + Math.random().toString(36).slice(2,6);
-        }
-        await registrarUsuario({
-          email: user.email || user.providerData?.[0]?.email || '',
-          username,
-          fullName: user.displayName || username,
-          uid: user.uid,
-          isGoogle: true
-        });
-        alert('Cuenta creada con Google. Ahora puedes iniciar sesión.');
-        await auth.signOut();
-        goLogin();
-      }
-    }).catch(err => console.error('[RedirectResult]', err));
   });
 </script>
 </body>
