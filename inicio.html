@@ -161,7 +161,39 @@
       background-color: #1a1a1a;            
       color: white;            
       border: 1px solid #444;            
-    }            
+    }   
+    /* Banner de saldo bajo */
+.saldo-banner{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #e8ecf3;
+  border-left: 6px solid #f59e0b; /* color de alerta */
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
+  padding: 12px 14px;
+  max-width: 320px;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #0b1220;
+}
+.saldo-content{ display: flex; align-items: center; gap: 10px; }
+.saldo-content span{ font-size: 14px; line-height: 1.4; }
+.saldo-btn{
+  margin-left: auto;
+  background: #0d6efd;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.saldo-btn:hover{ background:#0b5ed7; }
+@media (max-width: 480px){
+  .saldo-banner{ left: 12px; right: 12px; bottom: 12px; }
+    }
   </style>            
 </head>            
 <body>            
@@ -211,7 +243,13 @@
     <div class="progress-bar bg-danger" id="recargasProgress" style="width:0%"></div>
   </div>
 </div>            
-            
+ <!-- Aviso de saldo bajo -->
+<div id="saldoLowBanner" class="saldo-banner" hidden>
+  <div class="saldo-content">
+    <span>⚠️ Saldo bajo: te quedan <strong id="saldoRestante">0</strong> créditos.</span>
+    <button id="irPlanesBtn" class="saldo-btn" type="button">Recargar ahora</button>
+  </div>
+</div>           
     <div class="text-center mt-3">            
       <a href="referido" class="btn-invite"><i class="fas fa-user-plus"></i> Invitar Amigos</a>            
       <p class="text-muted">Comparte tu enlace de referidos y obtén créditos por su recarga</p>            
