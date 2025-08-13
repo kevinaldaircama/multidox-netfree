@@ -15,7 +15,7 @@
   <style>
     :root{
       --bg1:#e0eafc; --bg2:#cfdef3;
-      --card: #ffffffdd; --text:#0b1220; --muted:#586a84; --border:#e5eaf0;
+      --card:#ffffffdd; --text:#0b1220; --muted:#586a84; --border:#e5eaf0;
       --brand1:#5c6bc0; --brand2:#3f51b5; --ring: rgba(92,107,192,.25);
       --good1:#43a047; --good2:#66bb6a; --warn1:#fdd835; --warn2:#fff176; --vio1:#ab47bc; --vio2:#ce93d8;
     }
@@ -26,12 +26,11 @@
       background: linear-gradient(120deg, var(--bg1), var(--bg2));
       margin:0; color:var(--text);
     }
-
     .container{
-      max-width: 1140px; margin: 32px auto; padding: 24px;
-      background: var(--card); backdrop-filter: blur(8px);
-      border-radius: 16px; border:1px solid var(--border);
-      box-shadow: 0 14px 40px rgba(0,0,0,.12); animation: fadeIn .6s ease;
+      max-width:1140px; margin:32px auto; padding:24px;
+      background:var(--card); backdrop-filter: blur(8px);
+      border-radius:16px; border:1px solid var(--border);
+      box-shadow:0 14px 40px rgba(0,0,0,.12); animation: fadeIn .6s ease;
     }
     h2{ text-align:center; color:#2e3a59; margin:8px 0 18px; }
 
@@ -189,25 +188,30 @@
     const db   = firebase.database();
 
     // ---------- Estado UI ----------
-    const $ = (s)=>document.querySelector(s);
+    const $  = (s)=>document.querySelector(s);
     const $$ = (s)=>document.querySelectorAll(s);
-    const tableBody = $('#referidosTable');
-    const totalEl = $('#totalReferidos');
-    const activosEl = $('#referidosActivos');
-    const pendientesEl = $('#comisionesPendientes');
-    const totalesEl = $('#comisionesTotales');
-    const saldoBtn = $('#saldoTotal');
-    const ordenSel = $('#ordenSelect');
+    const tableBody   = $('#referidosTable');
+    const totalEl     = $('#totalReferidos');
+    const activosEl   = $('#referidosActivos');
+    const pendientesEl= $('#comisionesPendientes');
+    const totalesEl   = $('#comisionesTotales');
+    const saldoBtn    = $('#saldoTotal');
+    const ordenSel    = $('#ordenSelect');
     const searchInput = $('#busquedaInput');
-    const copiedHint = $('#copiedHint');
+    const copiedHint  = $('#copiedHint');
 
     let referidosArray = [];
-    let refIdGlobal = null;
+    let refKeyUsada = null; // clave “dueño” realmente usada (username o referidoId)
     let userUid = null;
+    let detach = null; // para soltar listener si cambiamos de ruta
 
     // ---------- Utilidades ----------
     function formatMoney(v){ return (Number(v)||0).toFixed(2); }
-    function byDate(a,b,desc=true){ const A = new Date(a.fecha||0).getTime(); const B = new Date(b.fecha||0).getTime(); return desc? (B-A):(A-B); }
+    function byDate(a,b,desc=true){
+      const A = new Date(a.fecha || a.fechaAlta || 0).getTime();
+      const B = new Date(b.fecha || b.fechaAlta || 0).getTime();
+      return desc? (B-A) : (A-B);
+    }
     function debounce(fn,ms=250){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args),ms) } }
 
     function render(list){
@@ -223,7 +227,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td title="${(r.nombre||'') + (r.correo? ' · '+r.correo : '')}">${r.nombre || r.correo || '-'}</td>
-          <td>${r.fecha || '-'}</td>
+          <td>${r.fecha || r.fechaAlta ? new Date(r.fecha || r.fechaAlta).toLocaleDateString() : '-'}</td>
           <td>${r.estado || '-'}</td>
           <td>${formatMoney(r.saldo)}</td>
           <td>${r.recargas ?? 0}</td>
@@ -248,60 +252,52 @@
       list.sort((a,b)=>byDate(a,b, ord!=='antiguos'));
       render(list);
     }
-
     const applyFiltersDebounced = debounce(applyFilters, 180);
     searchInput.addEventListener('input', applyFiltersDebounced);
     ordenSel.addEventListener('change', applyFilters);
 
-    // ---------- Copiar enlace ----------
+    // Copiar enlace
     $('#copyBtn').addEventListener('click', async ()=>{
       const v = $('#referralLink').value;
-      try{
-        await navigator.clipboard.writeText(v);
-      }catch(e){
-        // Fallback
-        const input = $('#referralLink'); input.select(); document.execCommand('copy');
-      }
-      copiedHint.hidden = false;
-      setTimeout(()=> copiedHint.hidden = true, 1200);
+      try{ await navigator.clipboard.writeText(v); }
+      catch(e){ const input = $('#referralLink'); input.select(); document.execCommand('copy'); }
+      copiedHint.hidden = false; setTimeout(()=> copiedHint.hidden = true, 1200);
     });
 
-    // ---------- Modal ----------
+    // Modal
     const modal = $('#modal');
-    const openModal = ()=>{ modal.style.display='flex'; modal.querySelector('.modal-content').focus?.(); }
+    const openModal  = ()=>{ modal.style.display='flex'; modal.querySelector('.modal-content').focus?.(); }
     const closeModal = ()=>{ modal.style.display='none'; }
     $('#btnCobrar').addEventListener('click', openModal);
     $('#cancelCobrar').addEventListener('click', closeModal);
     window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
 
-    // ---------- Cobrar comisiones (seguro) ----------
+    // Cobrar comisiones
     $('#confirmCobrar').addEventListener('click', async ()=>{
       if (!userUid) return;
       try{
-        // Leemos snapshot actual para evitar condiciones de carrera
         const snap = await db.ref(`usuarios/${userUid}`).once('value');
         const u = snap.val() || {};
         const pendientes = Number(u.comisionesPendientes||0);
-        const totales = Number(u.comisionesTotales||0);
-
+        const totales    = Number(u.comisionesTotales||0);
         if (pendientes <= 0) { closeModal(); return; }
 
         const updates = {};
         updates[`usuarios/${userUid}/comisionesPendientes`] = 0;
         updates[`usuarios/${userUid}/comisionesTotales`]   = (totales + pendientes);
 
-        // Si además quieres marcar como "Cobrado" los registros de referidos activos pendientes:
-        if (refIdGlobal){
-          const refsSnap = await db.ref(`referidos/${refIdGlobal}`).once('value');
-          const refs = refsSnap.val() || {};
+        if (refKeyUsada){
+          const refsSnap = await db.ref(`referido/${refKeyUsada}`).once('value');
+          const fallbackSnap = await db.ref(`referidos/${refKeyUsada}`).once('value');
+          const refs = refsSnap.exists() ? refsSnap.val() : (fallbackSnap.val()||{});
           Object.keys(refs).forEach(k=>{
             const r = refs[k];
             if (r && r.estado === 'activo' && r.comision !== 'Cobrado'){
-              updates[`referidos/${refIdGlobal}/${k}/comision`] = 'Cobrado';
+              updates[`referido/${refKeyUsada}/${k}/comision`]  = 'Cobrado';
+              updates[`referidos/${refKeyUsada}/${k}/comision`] = 'Cobrado';
             }
           });
         }
-
         await db.ref().update(updates);
       }catch(err){
         console.error('[Cobrar] error', err);
@@ -311,68 +307,101 @@
       }
     });
 
-    // ---------- Inicio: sesión y listeners ----------
-    auth.onAuthStateChanged(async (user)=>{
-      if (!user) {
-        // Ajusta si tu login se llama distinto
-        return location.replace('login.html');
+    // Busca la primera ruta de referidos disponible según tu DB
+    async function detectarRutaReferidos(claves){
+      for (const path of claves){
+        const s = await db.ref(path).limitToFirst(1).once('value');
+        if (s.exists()) return path;
       }
-      userUid = user.uid;
+      // Si ninguna existe, devolvemos la primera para crearla al vuelo
+      return claves[0];
+    }
 
-      // Asegura/refresca el referidoId
-      const refIdSnap = await db.ref(`usuarios/${userUid}/referidoId`).once('value');
-      let refId = refIdSnap.val();
-      if (!refId){
-        refId = userUid.slice(0,2) + Math.floor(Math.random()*100) + userUid.slice(-2);
-        await db.ref(`usuarios/${userUid}/referidoId`).set(refId);
-      }
-      refIdGlobal = refId;
-
-      // Construye el enlace público tipo /referido/{refId}
-      const origin = window.location.origin || (location.protocol + '//' + location.host);
-      $('#referralLink').value = `${origin}/referido/${refId}`;
-
-      // Escucha cambios de los referidos
-      db.ref(`referidos/${refId}`).on('value', (snap)=>{
+    // Conecta listener a la ruta de referidos elegida
+    function escucharReferidosEn(path){
+      // Suelta listener previo
+      if (detach) { detach(); detach = null; }
+      const ref = db.ref(path);
+      const cb = (snap)=>{
         const data = snap.val() || {};
         const list = [];
         let total = 0, activos = 0, pendientes = 0;
-
         Object.keys(data).forEach(k=>{
           const r = data[k] || {};
           total++;
-          // Consideramos "activo" si r.estado === 'activo'
           if (r.estado === 'activo' && r.comision !== 'Cobrado'){
             activos++;
             pendientes += 10; // regla: 10 créditos por activo pendiente
           }
           list.push({
-            nombre: r.nombre, correo: r.correo, fecha: r.fecha, estado: r.estado,
-            saldo: r.saldo || 0, recargas: r.recargas || 0, comision: r.comision || '0.00',
+            nombre: r.nombre,
+            correo: r.correo,
+            fecha:  r.fecha,
+            fechaAlta: r.fechaAlta,
+            estado: r.estado,
+            saldo:  r.saldo || 0,
+            recargas: r.recargas || 0,
+            comision: r.comision || '0.00',
             ultima: r.ultima || '-'
           });
         });
-
         referidosArray = list;
-        totalEl.textContent = total;
+        totalEl.textContent   = total;
         activosEl.textContent = activos;
-
         // Actualiza pendientes en el usuario
         db.ref(`usuarios/${userUid}/comisionesPendientes`).set(pendientes);
-
         applyFilters();
-      });
+      };
+      ref.on('value', cb);
+      detach = ()=> ref.off('value', cb);
+    }
 
-      // Información del usuario (totales + saldo)
+    // ---------- Inicio: sesión y listeners ----------
+    auth.onAuthStateChanged(async (user)=>{
+      if (!user) return location.replace('login.html');
+      userUid = user.uid;
+
+      // Trae el nombre de usuario (clave pública)
+      const userSnap = await db.ref(`usuarios/${userUid}`).once('value');
+      const userInfo = userSnap.val() || {};
+      const ownerUsername = (userInfo.nombre || '').trim();
+
+      // Fallback: referidoId (antiguo)
+      let refId = (userInfo.referidoId || '').trim();
+      if (!refId) {
+        refId = userUid.slice(0,2) + Math.floor(Math.random()*100) + userUid.slice(-2);
+        await db.ref(`usuarios/${userUid}/referidoId`).set(refId);
+      }
+
+      // Arma las claves candidatas en orden de preferencia (por usuario)
+      const candidatas = [];
+      if (ownerUsername) {
+        candidatas.push(`referido/${ownerUsername}`);
+        candidatas.push(`referidos/${ownerUsername}`);
+      }
+      // Compatibilidad: esquema anterior por referidoId
+      candidatas.push(`referidos/${refId}`);
+
+      // Detecta y escucha
+      const rutaElegida = await detectarRutaReferidos(candidatas);
+      // Guarda la clave usada (último segmento)
+      refKeyUsada = rutaElegida.split('/')[1];
+      escucharReferidosEn(rutaElegida);
+
+      // Enlace público
+      const origin = window.location.origin || (location.protocol + '//' + location.host);
+      const linkKey = ownerUsername || refId;
+      $('#referralLink').value = `${origin}/referido/${linkKey}`;
+
+      // Información de saldos
       db.ref(`usuarios/${userUid}`).on('value', (snap)=>{
         const u = snap.val() || {};
-        const totales = Number(u.comisionesTotales || 0);
+        const totales    = Number(u.comisionesTotales || 0);
         const pendientes = Number(u.comisionesPendientes || 0);
-        totalesEl.textContent = `${formatMoney(totales)} créditos`;
-        pendientesEl.textContent = `${formatMoney(pendientes)}`;
-        saldoBtn.textContent = `Mi saldo actual: 🪙 ${formatMoney(totales + pendientes)}`;
+        totalesEl.textContent     = `${formatMoney(totales)} créditos`;
+        pendientesEl.textContent  = `${formatMoney(pendientes)}`;
+        saldoBtn.textContent      = `Mi saldo actual: 🪙 ${formatMoney(totales + pendientes)}`;
 
-        // Botón cobrar habilitado/inhabilitado
         const btn = $('#btnCobrar');
         if (pendientes <= 0){
           btn.disabled = true; btn.style.opacity = .6; btn.style.cursor = 'not-allowed'; btn.textContent = 'No hay comisiones por cobrar';
@@ -381,11 +410,9 @@
         }
       });
 
-      // (Opcional) botón Mis Recargas
-      $('#btnRecargas').addEventListener('click', ()=>{
-        location.href = 'recargas.html';
-      });
+      // Botón "Mis Recargas"
+      $('#btnRecargas').addEventListener('click', ()=> location.href = 'recargas.html');
     });
   </script>
 </body>
-          </html>
+                </html>
