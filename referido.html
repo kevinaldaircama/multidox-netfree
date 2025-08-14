@@ -1,50 +1,71 @@
-<!-- Redes Sociales -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redes Sociales</title>
 <style>
-.social-container {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  flex-wrap: wrap;
-  margin: 20px 0;
-}
-.social-container a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  color: #fff;
-  font-size: 24px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  text-decoration: none;
-}
-.social-container a:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
-}
-.social-container a.youtube { background: #ff0000; }
-.social-container a.telegram { background: #0088cc; }
-.social-container a.whatsapp { background: #25d366; }
-.social-container a.web { background: #333; }
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .container {
+        max-width: 900px;
+        padding: 20px;
+    }
+    h1 {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        margin-bottom: 10px;
+    }
+    p {
+        font-size: clamp(0.9rem, 2vw, 1.2rem);
+        margin-bottom: 30px;
+    }
+    .social-links {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: clamp(60px, 15vw, 80px);
+        height: clamp(60px, 15vw, 80px);
+        background: white;
+        border-radius: 50%;
+        text-decoration: none;
+        color: #4e54c8;
+        font-size: clamp(24px, 6vw, 40px);
+        transition: transform 0.3s, background 0.3s;
+    }
+    .social-links a:hover {
+        background: #f1f1f1;
+        transform: scale(1.1);
+    }
 </style>
-
-<div class="social-container">
-  <a href="https://youtube.com/TuCanal" target="_blank" class="youtube" title="YouTube">
-    <i class="fab fa-youtube"></i>
-  </a>
-  <a href="https://t.me/TuUsuario" target="_blank" class="telegram" title="Telegram">
-    <i class="fab fa-telegram-plane"></i>
-  </a>
-  <a href="https://wa.me/51999999999" target="_blank" class="whatsapp" title="WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-  </a>
-  <a href="https://tupaginaweb.com" target="_blank" class="web" title="Sitio Web">
-    <i class="fas fa-globe"></i>
-  </a>
-</div>
-
-<!-- Iconos de FontAwesome -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<!-- Iconos de redes -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Síguenos en nuestras redes</h1>
+        <p>Mantente conectado y recibe las últimas novedades.</p>
+        <div class="social-links">
+            <a href="https://www.youtube.com/" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="https://t.me/" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
+            <a href="https://wa.me/" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://tusitio.com" target="_blank" title="Web"><i class="fas fa-globe"></i></a>
+        </div>
+    </div>
+</body>
+</html>
