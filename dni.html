@@ -5,222 +5,309 @@
 <title>Consulta Doxin1</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #eef2f7;
-  padding: 20px;
-  text-align: center;
-}
-input, button {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-button {
-  background: #28a745;
-  color: white;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-}
-button:hover {
-  background: #218838;
-}
-#mensaje {
-  margin-top: 15px;
-  font-weight: bold;
-  color: #333;
-  min-height: 40px;
-}
-.loader {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-}
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #28a745;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
-}
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-}
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  overflow-y: auto;
-  text-align: left;
-}
-.modal img {
-  max-width: 100%;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.img-full {
-  max-width: 100%;
-  max-height: 90vh;
-}
-.alerta {
-  background: #ffeeba;
-  color: #856404;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  font-size: 14px;
-}
-.alerta a {
-  color: #0c5460;
-  font-weight: bold;
-  text-decoration: underline;
-}
+  :root{
+    --bg:#eef2f7; --card:#fff; --text:#0b1220; --muted:#5f6c7b;
+    --ok:#28a745; --okH:#218838; --ring:rgba(40,167,69,.25);
+    --warnBg:#ffeeba; --warn:#856404; --link:#0c5460;
+    --overlay: rgba(0,0,0,.6); --border:#e5eaf0;
+  }
+  *{ box-sizing: border-box }
+  body{
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    margin: 0; padding: 20px; color: var(--text);
+    display: grid; place-items: start center; gap: 16px;
+  }
+  h2{ margin: 8px 0 0 }
+  .card{
+    width: 100%; max-width: 760px; background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px;
+    box-shadow: 0 14px 36px rgba(0,0,0,.08);
+  }
+  .alerta{
+    background: var(--warnBg); color: var(--warn);
+    padding: 14px; border-radius: 12px; margin-bottom: 12px; font-size: .95rem;
+  }
+  .alerta a{ color: var(--link); font-weight: 700; text-decoration: underline; }
+  .row{
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin: 6px 0 10px;
+  }
+  input[type="text"]{
+    flex: 1 1 220px; min-width: 200px;
+    padding: 12px 14px; border: 1px solid #d7dce3; border-radius: 10px;
+    outline: none; font-size: 15px;
+  }
+  input[type="text"]:focus{ box-shadow: 0 0 0 4px var(--ring); border-color: var(--ok); }
+  button{
+    padding: 12px 16px; border: none; border-radius: 10px; cursor: pointer;
+    background: var(--ok); color: #fff; font-weight: 800;
+  }
+  button:hover{ background: var(--okH) }
+  #mensaje{
+    min-height: 44px; display: grid; place-items: center left;
+    color: var(--muted); font-weight: 600;
+  }
+  .loader{
+    display: inline-flex; gap: 10px; align-items: center;
+    padding: 6px 0;
+  }
+  .spinner{
+    width: 22px; height: 22px;
+    border: 4px solid #f3f3f3; border-top: 4px solid var(--ok);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+  /* Modal base */
+  .modal{ display: none; position: fixed; inset: 0; background: var(--overlay);
+          z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+  .modal-content{
+    width: 100%; max-width: 680px; background: #fff; color: var(--text);
+    border-radius: 14px; padding: 18px; border: 1px solid var(--border);
+    box-shadow: 0 18px 50px rgba(0,0,0,.25);
+    max-height: 90vh; overflow: auto;
+  }
+  .grid{
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  }
+  .grid .col{ background: #fafbfc; border: 1px dashed var(--border); border-radius: 10px; padding: 10px; }
+  .title{ font-weight: 800; margin: 4px 0 8px }
+  .pair{ margin: 6px 0; }
+  .pair b{ display: inline-block; min-width: 180px; }
+  .photo{
+    text-align: center; background: #fafbfc; border: 1px dashed var(--border);
+    padding: 12px; border-radius: 10px; margin-bottom: 10px;
+  }
+  .photo img{ max-width: 100%; border-radius: 10px; cursor: zoom-in; }
+  .close{
+    display: inline-block; background: #111; color: #fff; padding: 10px 14px;
+    border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 8px;
+  }
+
+  /* Modal foto full */
+  #modalFoto .modal-content{
+    width: min(1000px, 96vw);
+    background: transparent; border: none; box-shadow: none; padding: 0;
+  }
+  #modalFoto img{ max-width: 100%; max-height: 90vh; border-radius: 8px; display: block; margin: auto; }
+
+  @media (max-width: 680px){
+    .grid{ grid-template-columns: 1fr; }
+    .pair b{ min-width: 140px; }
+  }
 </style>
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
-<h2>Consulta Doxin1</h2>
+  <div class="card">
+    <h2>Consulta Doxin1</h2>
 
-<div class="alerta">
-  Recuerda que si la consulta no está disponible o falla, comunícate con nosotros a través de 
-  <a href="https://roddox.es/soporte app" target="_blank">aquí</a>.
-</div>
+    <div class="alerta">
+      Esta consulta <b>descuenta 3 créditos</b> al mostrar resultados.<br>
+      Si la consulta no está disponible o falla, comunícate con nosotros
+      <a href="https://roddox.es/soporte app" target="_blank">aquí</a>.
+    </div>
 
-<p><b>Esta consulta descuenta 3 créditos</b></p>
+    <div class="row">
+      <input type="text" id="dniBuscar" placeholder="Ingrese DNI" />
+      <button id="btnBuscar" type="button">Buscar</button>
+    </div>
 
-<input type="text" id="dniBuscar" placeholder="Ingrese DNI">
-<button id="btnBuscar">Buscar</button>
-<div id="mensaje"></div>
+    <div id="mensaje"></div>
+  </div>
 
-<div class="modal" id="modalResultado">
-  <div class="modal-content" id="modalData"></div>
-</div>
+  <!-- Modal de resultado -->
+  <div class="modal" id="modalResultado">
+    <div class="modal-content" id="modalData"></div>
+  </div>
 
-<div class="modal" id="modalFoto">
-  <img id="fotoAmpliada" class="img-full" src="">
-</div>
+  <!-- Modal de foto ampliada -->
+  <div class="modal" id="modalFoto">
+    <div class="modal-content">
+      <img id="fotoAmpliada" src="">
+    </div>
+  </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
-  authDomain: "transferencia-88fd7.firebaseapp.com",
-  databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
-  projectId: "transferencia-88fd7",
-  storageBucket: "transferencia-88fd7.firebasestorage.app",
-  messagingSenderId: "343352831024",
-  appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
-  measurementId: "G-LNX1B0RLK7"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const rtdb = firebase.database();
-const auth = firebase.auth();
+  // ---------- Firebase ----------
+  const firebaseConfig = {
+    apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
+    authDomain: "transferencia-88fd7.firebaseapp.com",
+    databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
+    projectId: "transferencia-88fd7",
+    storageBucket: "transferencia-88fd7.firebasestorage.app",
+    messagingSenderId: "343352831024",
+    appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
+    measurementId: "G-LNX1B0RLK7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const fs  = firebase.firestore();
+  const db  = firebase.database();
+  const auth = firebase.auth();
 
-function mostrarLoader(texto, tiempo=0) {
-  return new Promise(resolve => {
-    document.getElementById("mensaje").innerHTML = `
+  // ---------- Helpers UI ----------
+  const $  = (s)=>document.querySelector(s);
+  const $$ = (s)=>document.querySelectorAll(s);
+  const mensaje = $('#mensaje');
+
+  const sleep = (ms)=> new Promise(r=>setTimeout(r, ms));
+
+  function showLoader(text){
+    mensaje.innerHTML = `
       <div class="loader">
         <div class="spinner"></div>
-        <span>${texto}</span>
-      </div>
-    `;
-    if (tiempo > 0) {
-      setTimeout(() => resolve(), tiempo);
-    } else {
-      resolve();
+        <span>${text}</span>
+      </div>`;
+  }
+  function showText(text){ mensaje.textContent = text; }
+
+  function openModal(id){ $(id).style.display = 'flex'; }
+  function closeModal(id){ $(id).style.display = 'none'; }
+
+  // Cerrar modales clicando fuera
+  $$('#modalResultado, #modalFoto').forEach(m=>{
+    m.addEventListener('click', e=>{
+      if (e.target.classList.contains('modal')) e.currentTarget.style.display='none';
+    });
+  });
+
+  // ---------- Lógica principal ----------
+  $('#btnBuscar').addEventListener('click', async ()=>{
+    const dni = $('#dniBuscar').value.trim();
+    if (!dni) return alert('Ingrese un DNI');
+
+    const user = auth.currentUser;
+    if (!user) { showText('Debes iniciar sesión para consultar.'); return; }
+
+    try{
+      // Paso 1: Cargando…
+      showLoader('⏳ Cargando…');
+      await sleep(2000);
+
+      // Paso 2: Verificando confirmación…
+      showLoader('🔍 Verificando confirmación…');
+      await sleep(2000);
+
+      // Buscar doc y datos de usuario en paralelo
+      const [docSnap, userSnap] = await Promise.all([
+        fs.collection('doxin1').doc(dni).get(),
+        db.ref(`usuarios/${user.uid}`).once('value')
+      ]);
+
+      const userData = userSnap.val() || {};
+
+      // No hay información
+      if (!docSnap.exists){
+        showText('❌ No hay información en la base de datos para ese DNI.');
+        return;
+      }
+
+      // Verificar créditos
+      const creditoActual = Number(userData.comisionesTotales || 0);
+      if (isNaN(creditoActual) || creditoActual < 3){
+        showText('⚠️ No tienes créditos suficientes para realizar la consulta.');
+        return;
+      }
+
+      // Descontar 3 créditos de manera atómica
+      const nuevoSaldo = creditoActual - 3;
+      await db.ref(`usuarios/${user.uid}/comisionesTotales`).set(nuevoSaldo);
+
+      // Mostrar resultados
+      const d = docSnap.data() || {};
+      const fotoUrl = d.foto || '';
+      const nombreUsuario = userData?.nombre || (user.email?.split('@')[0]) || 'Usuario';
+
+      const modal = $('#modalData');
+      modal.innerHTML = `
+        <div class="photo">
+          <div class="title">Foto</div>
+          ${fotoUrl
+            ? `<img id="miniFoto" src="${fotoUrl}" alt="Foto" title="Clic para ampliar">`
+            : `<div style="color:#999">Sin foto</div>`
+          }
+        </div>
+
+        <div class="grid">
+          <div class="col">
+            <div class="title">🧑‍💼 Datos Personales</div>
+            <div class="pair"><b>DNI:</b> ${d.dni ?? dni}</div>
+            <div class="pair"><b>NOMBRES:</b> ${d.nombres ?? '-'}</div>
+            <div class="pair"><b>APELLIDOS:</b> ${d.apellidos ?? '-'}</div>
+            <div class="pair"><b>GÉNERO:</b> ${d.genero ?? '-'}</div>
+
+            <div class="title" style="margin-top:10px">🎂 Nacimiento</div>
+            <div class="pair"><b>FECHA NACIMIENTO:</b> ${d.fechaNacimiento ?? '-'}</div>
+            <div class="pair"><b>EDAD:</b> ${d.edad ?? '-'}</div>
+            <div class="pair"><b>DEPARTAMENTO:</b> ${d.departamento ?? '-'}</div>
+            <div class="pair"><b>PROVINCIA:</b> ${d.provincia ?? '-'}</div>
+            <div class="pair"><b>DISTRITO:</b> ${d.distrito ?? '-'}</div>
+          </div>
+
+          <div class="col">
+            <div class="title">📋 Información General</div>
+            <div class="pair"><b>NIVEL EDUCATIVO:</b> ${d.nivelEducativo ?? '-'}</div>
+            <div class="pair"><b>ESTADO CIVIL:</b> ${d.estadoCivil ?? '-'}</div>
+            <div class="pair"><b>ESTATURA:</b> ${d.estatura ?? '-'}</div>
+            <div class="pair"><b>FECHA INSCRIPCIÓN:</b> ${d.fechaInscripcion ?? '-'}</div>
+            <div class="pair"><b>FECHA EMISIÓN:</b> ${d.fechaEmision ?? '-'}</div>
+            <div class="pair"><b>FECHA CADUCIDAD:</b> ${d.fechaCaducidad ?? '-'}</div>
+            <div class="pair"><b>DONANTE ÓRGANOS:</b> ${d.donanteOrganos ?? '-'}</div>
+            <div class="pair"><b>PADRE:</b> ${d.padre ?? '-'}</div>
+            <div class="pair"><b>MADRE:</b> ${d.madre ?? '-'}</div>
+            <div class="pair"><b>RESTRICCIÓN:</b> ${d.restriccion ?? '-'}</div>
+
+            <div class="title" style="margin-top:10px">🏠 Domicilio</div>
+            <div class="pair"><b>DEPARTAMENTO:</b> ${d.dom_departamento ?? '-'}</div>
+            <div class="pair"><b>PROVINCIA:</b> ${d.dom_provincia ?? '-'}</div>
+            <div class="pair"><b>DISTRITO:</b> ${d.dom_distrito ?? '-'}</div>
+            <div class="pair"><b>DIRECCIÓN:</b> ${d.direccion ?? '-'}</div>
+
+            <div class="title" style="margin-top:10px">📍 Ubigeos</div>
+            <div class="pair"><b>UBIGEO RENIEC:</b> ${d.ubigeoReniec ?? '-'}</div>
+            <div class="pair"><b>UBIGEO INE:</b> ${d.ubigeoIne ?? '-'}</div>
+            <div class="pair"><b>UBIGEO SUNAT:</b> ${d.ubigeoSunat ?? '-'}</div>
+          </div>
+        </div>
+
+        <hr style="margin:14px 0">
+        <div class="pair"><b>Créditos disponibles:</b> ${nuevoSaldo}</div>
+        <div class="pair"><b>Usuario:</b> ${nombreUsuario}</div>
+
+        <div style="text-align:right"><span class="close" id="cerrarResultado">Cerrar</span></div>
+      `;
+
+      showText(''); // Limpia mensaje
+      openModal('#modalResultado');
+
+      // foto ampliada
+      const mini = $('#miniFoto');
+      if (mini){
+        mini.addEventListener('click', ()=>{
+          $('#fotoAmpliada').src = fotoUrl;
+          openModal('#modalFoto');
+        });
+      }
+      $('#cerrarResultado')?.addEventListener('click', ()=> closeModal('#modalResultado'));
+
+    }catch(err){
+      console.error(err);
+      showText('❌ Ocurrió un error al procesar la consulta. Intenta nuevamente.');
     }
   });
-}
 
-document.getElementById("btnBuscar").addEventListener("click", async () => {
-  const dni = document.getElementById("dniBuscar").value.trim();
-  if (!dni) return alert("Ingrese un DNI");
-
-  const user = auth.currentUser;
-  if (!user) return alert("Debes iniciar sesión");
-
-  // Paso 1: Cargando...
-  await mostrarLoader("⏳ Cargando...", 2000);
-
-  // Paso 2: Buscar en Firestore
-  const doc = await db.collection("doxin1").doc(dni).get();
-  if (!doc.exists) {
-    document.getElementById("mensaje").textContent = "❌ No se encuentra en la base de datos.";
-    return;
-  }
-
-  // Paso 3: Verificando...
-  await mostrarLoader("🔍 Verificando confirmación...", 2000);
-
-  // Paso 4: Verificar créditos
-  const uid = user.uid;
-  const userSnap = await rtdb.ref(`usuarios/${uid}`).once("value");
-  const userData = userSnap.val();
-  if (!userData || userData.comisionesTotales < 3) {
-    document.getElementById("mensaje").textContent = "⚠️ No tienes créditos suficientes para realizar la consulta.";
-    return;
-  }
-
-  // Paso 5: Descontar créditos
-  await rtdb.ref(`usuarios/${uid}/comisionesTotales`).set(userData.comisionesTotales - 3);
-
-  // Paso 6: Mostrar datos en modal
-  const datos = doc.data();
-  const modal = document.getElementById("modalData");
-  modal.innerHTML = `
-    <h3>Foto</h3>
-    <img src="${datos.foto}" alt="Foto" id="miniFoto">
-    <p><b>DNI:</b> ${datos.dni}</p>
-    <p><b>NOMBRES:</b> ${datos.nombres}</p>
-    <p><b>APELLIDOS:</b> ${datos.apellidos}</p>
-    <p><b>GENERO:</b> ${datos.genero}</p>
-    <p><b>FECHA NACIMIENTO:</b> ${datos.fechaNacimiento}</p>
-    <p><b>EDAD:</b> ${datos.edad}</p>
-    <p><b>DEPARTAMENTO:</b> ${datos.departamento}</p>
-    <p><b>PROVINCIA:</b> ${datos.provincia}</p>
-    <p><b>DISTRITO:</b> ${datos.distrito}</p>
-    <hr>
-    <p><b>Créditos disponibles:</b> ${userData.comisionesTotales - 3}</p>
-    <p><b>Usuario:</b> ${userData.nombre}</p>
-  `;
-  document.getElementById("mensaje").textContent = "";
-  document.getElementById("modalResultado").style.display = "flex";
-
-  document.getElementById("miniFoto").addEventListener("click", () => {
-    document.getElementById("fotoAmpliada").src = datos.foto;
-    document.getElementById("modalFoto").style.display = "flex";
+  // Mensaje si no hay sesión (cuando cambie)
+  auth.onAuthStateChanged(u=>{
+    if (!u) showText('Debes iniciar sesión para consultar.');
   });
-});
-
-document.querySelectorAll(".modal").forEach(m => {
-  m.addEventListener("click", e => {
-    if (e.target.classList.contains("modal")) e.target.style.display = "none";
-  });
-});
-
-auth.onAuthStateChanged(u => {
-  if (!u) document.getElementById("mensaje").textContent = "Debes iniciar sesión para consultar.";
-});
 </script>
 </body>
 </html>
