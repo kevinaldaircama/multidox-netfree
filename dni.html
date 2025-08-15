@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-  <title>Consulta Dni</title>
+<title>Consulta Doxin1</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body {
@@ -68,6 +68,7 @@ button:hover {
   max-width: 500px;
   width: 90%;
   overflow-y: auto;
+  text-align: left;
 }
 .modal img {
   max-width: 100%;
@@ -78,6 +79,19 @@ button:hover {
   max-width: 100%;
   max-height: 90vh;
 }
+.alerta {
+  background: #ffeeba;
+  color: #856404;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+.alerta a {
+  color: #0c5460;
+  font-weight: bold;
+  text-decoration: underline;
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -86,6 +100,14 @@ button:hover {
 </head>
 <body>
 <h2>Consulta Doxin1</h2>
+
+<div class="alerta">
+  Recuerda que si la consulta no está disponible o falla, comunícate con nosotros a través de 
+  <a href="https://roddox.es/soporte app" target="_blank">aquí</a>.
+</div>
+
+<p><b>Esta consulta descuenta 3 créditos</b></p>
+
 <input type="text" id="dniBuscar" placeholder="Ingrese DNI">
 <button id="btnBuscar">Buscar</button>
 <div id="mensaje"></div>
@@ -101,14 +123,14 @@ button:hover {
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
-    authDomain: "transferencia-88fd7.firebaseapp.com",
-    databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
-    projectId: "transferencia-88fd7",
-    storageBucket: "transferencia-88fd7.firebasestorage.app",
-    messagingSenderId: "343352831024",
-    appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
-    measurementId: "G-LNX1B0RLK7"
-  };
+  authDomain: "transferencia-88fd7.firebaseapp.com",
+  databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
+  projectId: "transferencia-88fd7",
+  storageBucket: "transferencia-88fd7.firebasestorage.app",
+  messagingSenderId: "343352831024",
+  appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
+  measurementId: "G-LNX1B0RLK7"
+};
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const rtdb = firebase.database();
@@ -137,20 +159,20 @@ document.getElementById("btnBuscar").addEventListener("click", async () => {
   const user = auth.currentUser;
   if (!user) return alert("Debes iniciar sesión");
 
-  // 1️⃣ Mostrar loader "Cargando..."
+  // Paso 1: Cargando...
   await mostrarLoader("⏳ Cargando...", 2000);
 
-  // 2️⃣ Buscar en Firestore
+  // Paso 2: Buscar en Firestore
   const doc = await db.collection("doxin1").doc(dni).get();
   if (!doc.exists) {
     document.getElementById("mensaje").textContent = "❌ No se encuentra en la base de datos.";
     return;
   }
 
-  // 3️⃣ Mostrar loader "Verificando confirmación..."
+  // Paso 3: Verificando...
   await mostrarLoader("🔍 Verificando confirmación...", 2000);
 
-  // 4️⃣ Verificar créditos
+  // Paso 4: Verificar créditos
   const uid = user.uid;
   const userSnap = await rtdb.ref(`usuarios/${uid}`).once("value");
   const userData = userSnap.val();
@@ -159,10 +181,10 @@ document.getElementById("btnBuscar").addEventListener("click", async () => {
     return;
   }
 
-  // 5️⃣ Descontar créditos
+  // Paso 5: Descontar créditos
   await rtdb.ref(`usuarios/${uid}/comisionesTotales`).set(userData.comisionesTotales - 3);
 
-  // 6️⃣ Mostrar datos en modal
+  // Paso 6: Mostrar datos en modal
   const datos = doc.data();
   const modal = document.getElementById("modalData");
   modal.innerHTML = `
@@ -201,4 +223,4 @@ auth.onAuthStateChanged(u => {
 });
 </script>
 </body>
-  </html>
+</html>
