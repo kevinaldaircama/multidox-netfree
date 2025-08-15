@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Consultar Doxin1</title>
+<meta charset="UTF-8"><<title>Consulta Dni</title>/title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body {
   font-family: Arial, sans-serif;
   background: #eef2f7;
   padding: 20px;
-}
-h2 {
   text-align: center;
 }
 input, button {
@@ -28,6 +25,30 @@ button {
 }
 button:hover {
   background: #218838;
+}
+#mensaje {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #333;
+  min-height: 40px;
+}
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #28a745;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
 }
 .modal {
   display: none;
@@ -66,6 +87,7 @@ button:hover {
 <h2>Consulta Doxin1</h2>
 <input type="text" id="dniBuscar" placeholder="Ingrese DNI">
 <button id="btnBuscar">Buscar</button>
+<div id="mensaje"></div>
 
 <div class="modal" id="modalResultado">
   <div class="modal-content" id="modalData"></div>
@@ -91,24 +113,57 @@ const db = firebase.firestore();
 const rtdb = firebase.database();
 const auth = firebase.auth();
 
+function mostrarLoader(texto, tiempo=0) {
+  return new Promise(resolve => {
+    document.getElementById("mensaje").innerHTML = `
+      <div class="loader">
+        <div class="spinner"></div>
+        <span>${texto}</span>
+      </div>
+    `;
+    if (tiempo > 0) {
+      setTimeout(() => resolve(), tiempo);
+    } else {
+      resolve();
+    }
+  });
+}
+
 document.getElementById("btnBuscar").addEventListener("click", async () => {
+  const dni = document.getElementById("dniBuscar").value.trim();
+  if (!dni) return alert("Ingrese un DNI");
+
   const user = auth.currentUser;
   if (!user) return alert("Debes iniciar sesión");
 
+  // 1️⃣ Mostrar loader "Cargando..."
+  await mostrarLoader("⏳ Cargando...", 2000);
+
+  // 2️⃣ Buscar en Firestore
+  const doc = await db.collection("doxin1").doc(dni).get();
+  if (!doc.exists) {
+    document.getElementById("mensaje").textContent = "❌ No se encuentra en la base de datos.";
+    return;
+  }
+
+  // 3️⃣ Mostrar loader "Verificando confirmación..."
+  await mostrarLoader("🔍 Verificando confirmación...", 2000);
+
+  // 4️⃣ Verificar créditos
   const uid = user.uid;
   const userSnap = await rtdb.ref(`usuarios/${uid}`).once("value");
   const userData = userSnap.val();
-  if (!userData) return alert("Usuario no encontrado");
-  if (userData.comisionesTotales < 3) return alert("No tienes créditos suficientes");
+  if (!userData || userData.comisionesTotales < 3) {
+    document.getElementById("mensaje").textContent = "⚠️ No tienes créditos suficientes para realizar la consulta.";
+    return;
+  }
 
+  // 5️⃣ Descontar créditos
   await rtdb.ref(`usuarios/${uid}/comisionesTotales`).set(userData.comisionesTotales - 3);
 
-  const doc = await db.collection("doxin1").doc(dniBuscar.value).get();
-  if (!doc.exists) return alert("No se encontraron datos");
-
+  // 6️⃣ Mostrar datos en modal
   const datos = doc.data();
   const modal = document.getElementById("modalData");
-
   modal.innerHTML = `
     <h3>Foto</h3>
     <img src="${datos.foto}" alt="Foto" id="miniFoto">
@@ -125,7 +180,7 @@ document.getElementById("btnBuscar").addEventListener("click", async () => {
     <p><b>Créditos disponibles:</b> ${userData.comisionesTotales - 3}</p>
     <p><b>Usuario:</b> ${userData.nombre}</p>
   `;
-
+  document.getElementById("mensaje").textContent = "";
   document.getElementById("modalResultado").style.display = "flex";
 
   document.getElementById("miniFoto").addEventListener("click", () => {
@@ -141,8 +196,8 @@ document.querySelectorAll(".modal").forEach(m => {
 });
 
 auth.onAuthStateChanged(u => {
-  if (!u) alert("Debes iniciar sesión para consultar");
+  if (!u) document.getElementById("mensaje").textContent = "Debes iniciar sesión para consultar.";
 });
 </script>
 </body>
-</html>
+  </html>
