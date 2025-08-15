@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Consultar Doxin1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #eef2f7;
+  padding: 20px;
+}
+h2 {
+  text-align: center;
+}
+input, button {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+button {
+  background: #28a745;
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:hover {
+  background: #218838;
+}
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  overflow-y: auto;
+}
+.modal img {
+  max-width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.img-full {
+  max-width: 100%;
+  max-height: 90vh;
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+<h2>Consulta Doxin1</h2>
+<input type="text" id="dniBuscar" placeholder="Ingrese DNI">
+<button id="btnBuscar">Buscar</button>
+
+<div class="modal" id="modalResultado">
+  <div class="modal-content" id="modalData"></div>
+</div>
+
+<div class="modal" id="modalFoto">
+  <img id="fotoAmpliada" class="img-full" src="">
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
+  authDomain: "transferencia-88fd7.firebaseapp.com",
+  databaseURL: "https://transferencia-88fd7-default-rtdb.firebaseio.com",
+  projectId: "transferencia-88fd7",
+  storageBucket: "transferencia-88fd7.firebasestorage.app",
+  messagingSenderId: "343352831024",
+  appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
+  measurementId: "G-LNX1B0RLK7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const rtdb = firebase.database();
+const auth = firebase.auth();
+
+document.getElementById("btnBuscar").addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if (!user) return alert("Debes iniciar sesión");
+
+  const uid = user.uid;
+  const userSnap = await rtdb.ref(`usuarios/${uid}`).once("value");
+  const userData = userSnap.val();
+  if (!userData) return alert("Usuario no encontrado");
+  if (userData.comisionesTotales < 3) return alert("No tienes créditos suficientes");
+
+  await rtdb.ref(`usuarios/${uid}/comisionesTotales`).set(userData.comisionesTotales - 3);
+
+  const doc = await db.collection("doxin1").doc(dniBuscar.value).get();
+  if (!doc.exists) return alert("No se encontraron datos");
+
+  const datos = doc.data();
+  const modal = document.getElementById("modalData");
+
+  modal.innerHTML = `
+    <h3>Foto</h3>
+    <img src="${datos.foto}" alt="Foto" id="miniFoto">
+    <p><b>DNI:</b> ${datos.dni}</p>
+    <p><b>NOMBRES:</b> ${datos.nombres}</p>
+    <p><b>APELLIDOS:</b> ${datos.apellidos}</p>
+    <p><b>GENERO:</b> ${datos.genero}</p>
+    <p><b>FECHA NACIMIENTO:</b> ${datos.fechaNacimiento}</p>
+    <p><b>EDAD:</b> ${datos.edad}</p>
+    <p><b>DEPARTAMENTO:</b> ${datos.departamento}</p>
+    <p><b>PROVINCIA:</b> ${datos.provincia}</p>
+    <p><b>DISTRITO:</b> ${datos.distrito}</p>
+    <hr>
+    <p><b>Créditos disponibles:</b> ${userData.comisionesTotales - 3}</p>
+    <p><b>Usuario:</b> ${userData.nombre}</p>
+  `;
+
+  document.getElementById("modalResultado").style.display = "flex";
+
+  document.getElementById("miniFoto").addEventListener("click", () => {
+    document.getElementById("fotoAmpliada").src = datos.foto;
+    document.getElementById("modalFoto").style.display = "flex";
+  });
+});
+
+document.querySelectorAll(".modal").forEach(m => {
+  m.addEventListener("click", e => {
+    if (e.target.classList.contains("modal")) e.target.style.display = "none";
+  });
+});
+
+auth.onAuthStateChanged(u => {
+  if (!u) alert("Debes iniciar sesión para consultar");
+});
+</script>
+</body>
+</html>
