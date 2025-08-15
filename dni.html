@@ -1,138 +1,175 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Consulta Doxin1</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  :root{
-    --bg:#eef2f7; --card:#fff; --text:#0b1220; --muted:#5f6c7b;
-    --ok:#28a745; --okH:#218838; --ring:rgba(40,167,69,.25);
-    --warnBg:#ffeeba; --warn:#856404; --link:#0c5460;
-    --overlay: rgba(0,0,0,.6); --border:#e5eaf0;
-  }
-  *{ box-sizing: border-box }
-  body{
-    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background: var(--bg);
-    margin: 0; padding: 20px; color: var(--text);
-    display: grid; place-items: start center; gap: 16px;
-  }
-  h2{ margin: 8px 0 0 }
-  .card{
-    width: 100%; max-width: 760px; background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px; padding: 18px;
-    box-shadow: 0 14px 36px rgba(0,0,0,.08);
-  }
-  .alerta{
-    background: var(--warnBg); color: var(--warn);
-    padding: 14px; border-radius: 12px; margin-bottom: 12px; font-size: .95rem;
-  }
-  .alerta a{ color: var(--link); font-weight: 700; text-decoration: underline; }
-  .row{
-    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-    margin: 6px 0 10px;
-  }
-  input[type="text"]{
-    flex: 1 1 220px; min-width: 200px;
-    padding: 12px 14px; border: 1px solid #d7dce3; border-radius: 10px;
-    outline: none; font-size: 15px;
-  }
-  input[type="text"]:focus{ box-shadow: 0 0 0 4px var(--ring); border-color: var(--ok); }
-  button{
-    padding: 12px 16px; border: none; border-radius: 10px; cursor: pointer;
-    background: var(--ok); color: #fff; font-weight: 800;
-  }
-  button:hover{ background: var(--okH) }
-  #mensaje{
-    min-height: 44px; display: grid; place-items: center left;
-    color: var(--muted); font-weight: 600;
-  }
-  .loader{
-    display: inline-flex; gap: 10px; align-items: center;
-    padding: 6px 0;
-  }
-  .spinner{
-    width: 22px; height: 22px;
-    border: 4px solid #f3f3f3; border-top: 4px solid var(--ok);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Consulta doxin1</title>
 
-  /* Modal base */
-  .modal{ display: none; position: fixed; inset: 0; background: var(--overlay);
-          z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
-  .modal-content{
-    width: 100%; max-width: 680px; background: #fff; color: var(--text);
-    border-radius: 14px; padding: 18px; border: 1px solid var(--border);
-    box-shadow: 0 18px 50px rgba(0,0,0,.25);
-    max-height: 90vh; overflow: auto;
-  }
-  .grid{
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
-  }
-  .grid .col{ background: #fafbfc; border: 1px dashed var(--border); border-radius: 10px; padding: 10px; }
-  .title{ font-weight: 800; margin: 4px 0 8px }
-  .pair{ margin: 6px 0; }
-  .pair b{ display: inline-block; min-width: 180px; }
-  .photo{
-    text-align: center; background: #fafbfc; border: 1px dashed var(--border);
-    padding: 12px; border-radius: 10px; margin-bottom: 10px;
-  }
-  .photo img{ max-width: 100%; border-radius: 10px; cursor: zoom-in; }
-  .close{
-    display: inline-block; background: #111; color: #fff; padding: 10px 14px;
-    border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 8px;
-  }
+<!-- Fuente -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
 
-  /* Modal foto full */
-  #modalFoto .modal-content{
-    width: min(1000px, 96vw);
-    background: transparent; border: none; box-shadow: none; padding: 0;
-  }
-  #modalFoto img{ max-width: 100%; max-height: 90vh; border-radius: 8px; display: block; margin: auto; }
-
-  @media (max-width: 680px){
-    .grid{ grid-template-columns: 1fr; }
-    .pair b{ min-width: 140px; }
-  }
-</style>
-
-<!-- Firebase -->
+<!-- Firebase compat -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+  :root{
+    --bg:#0f172a; --card:#0b1220; --muted:#7c8aa5; --text:#e6ecf5; --border:#1f2a44;
+    --ring:#2f6efc33; --brand:#7c3aed; --ok:#14a44d; --warn:#f59e0b; --danger:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; padding:16px; display:grid; place-items:center;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background: radial-gradient(1200px 600px at 10% 10%, #1b2234 0, #0f172a 50%, #0b1220 100%);
+    color:var(--text);
+  }
+  .card{
+    width:100%; max-width:920px; background: linear-gradient(180deg, #0b1220, #0a1120);
+    border:1px solid var(--border); border-radius:16px; padding:18px;
+    box-shadow: 0 30px 60px rgba(0,0,0,.45);
+  }
+  h1{ margin:0 0 4px; font-size:clamp(20px, 4vw, 26px); font-weight:800; letter-spacing:.3px }
+  p.sub{ margin:0 0 14px; color:var(--muted) }
+  .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+  .row > *{ flex:1 }
+  .row .col-fixed{ flex:0 0 auto }
+
+  .input{ width:100%; padding:12px 14px; border-radius:10px; background:#0e1831;
+    border:1px solid var(--border); color:var(--text); outline:none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .input:focus{ border-color:#2f6efc; box-shadow:0 0 0 4px var(--ring) }
+  .btn{ border:none; padding:12px 14px; border-radius:10px; cursor:pointer; font-weight:800 }
+  .btn.primary{ background:#2f6efc; color:#fff }
+  .btn.primary:hover{ filter:saturate(1.1) brightness(1.03) }
+
+  .panel{
+    margin-top:14px; padding:12px; border-radius:12px;
+    background:linear-gradient(180deg, #0b1220, #0a1222);
+    border:1px dashed #20335a;
+  }
+  .msg{ font-size:15px; color:#cbd5e1 }
+  .loader{
+    display:flex; align-items:center; gap:12px; padding:12px;
+    background:#0a1222; border:1px solid #172445; border-radius:12px;
+  }
+  .spinner{
+    width:22px; height:22px; border-radius:50%;
+    border:3px solid #20345c; border-top-color:#2f6efc; animation:spin 1s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg) } }
+
+  /* Modal base */
+  .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+          background: rgba(10, 12, 20, .65); z-index:20; padding:14px }
+  .modal .content{
+    width:min(960px, 96%); background:#0b1220; border:1px solid #20335a; border-radius:14px;
+    box-shadow: 0 30px 60px rgba(0,0,0,.6); padding:14px;
+  }
+  .modal .head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px }
+  .modal .title{ font-weight:800; font-size:18px }
+  .modal .close{ color:#93a7c3; cursor:pointer; font-weight:700 }
+  .modal .close:hover{ color:#cbd5e1 }
+
+  /* Layout resultado */
+  .grid{
+    display:grid; grid-template-columns: 260px 1fr; gap:16px;
+  }
+  .photo{
+    background:#0a1222; border:1px solid #20335a; border-radius:12px; padding:12px;
+  }
+  .photo .title{ font-weight:700; color:#9bb1d6; margin-bottom:10px }
+  .photo img{
+    width:100%; height:auto; border-radius:12px; display:block;
+    background:#070e1c; border:1px solid #0f1c38; cursor:pointer;
+  }
+
+  .col{
+    background:#0a1222; border:1px solid #20335a; border-radius:12px; padding:12px;
+  }
+  .col .title{ font-weight:700; color:#9bb1d6; margin:2px 0 8px }
+  .pair{ display:flex; gap:8px; padding:6px 0; border-bottom:1px dashed #1a2a4c; font-size:14px }
+  .pair:last-child{ border-bottom:none }
+  .pair b{ min-width:180px; color:#a7b8d8 }
+
+  hr{ border:0; border-top:1px solid #1a2a4c; margin:12px 0 }
+
+  /* Modal foto grande */
+  .modal-photo .content{
+    width:min(720px, 94%); background:#0b1220; border:1px solid #20335a; padding:12px; border-radius:14px;
+  }
+  .modal-photo img{ width:100%; height:auto; border-radius:12px; display:block }
+
+  /* Aviso soporte */
+  .notice{
+    background:#13233f; border:1px solid #273a61; color:#d9e2ef;
+    padding:12px; border-radius:8px; margin-top:12px
+  }
+  .notice a{ color:#8be9ff; text-decoration:underline; font-weight:700 }
+
+  /* Responsive */
+  @media (max-width: 860px){
+    .grid{ grid-template-columns: 1fr; }
+    .pair{ flex-direction:column }
+    .pair b{ min-width: auto }
+  }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h2>Consulta Doxin1</h2>
-
-    <div class="alerta">
-      Esta consulta <b>descuenta 3 créditos</b> al mostrar resultados.<br>
-      Si la consulta no está disponible o falla, comunícate con nosotros
-      <a href="https://roddox.es/soporte app" target="_blank">aquí</a>.
-    </div>
+  <div class="card" role="region" aria-label="Consulta doxin1">
+    <h1>Consulta doxin1</h1>
+    <p class="sub">Ingresa el DNI para consultar. Se descuentan <b>3 créditos</b> por consulta exitosa.</p>
 
     <div class="row">
-      <input type="text" id="dniBuscar" placeholder="Ingrese DNI" />
-      <button id="btnBuscar" type="button">Buscar</button>
+      <input id="dniBuscar" class="input" placeholder="DNI" inputmode="numeric" />
+      <div class="col-fixed">
+        <button id="btnBuscar" class="btn primary" type="button">Buscar</button>
+      </div>
     </div>
 
-    <div id="mensaje"></div>
+    <div id="panel" class="panel">
+      <div id="mensaje" class="msg">Listo para consultar.</div>
+    </div>
+
+    <!-- Aviso soporte -->
+    <div class="notice">
+      <h4 style="margin:0 0 6px;">Importante</h4>
+      <div>Crédito descontado por consulta: <b>3</b></div>
+      <div style="margin-top:6px;">
+        Recuerda que si la consulta no está disponible o falla, comunícate con nosotros
+        <a href="https://roddox.es/soporte app" target="_blank" rel="noopener">aquí</a>.
+      </div>
+    </div>
   </div>
 
-  <!-- Modal de resultado -->
-  <div class="modal" id="modalResultado">
-    <div class="modal-content" id="modalData"></div>
+  <!-- Modal resultado -->
+  <div id="modalResultado" class="modal" aria-modal="true" role="dialog">
+    <div class="content">
+      <div class="head">
+        <div class="title">Resultado de la consulta</div>
+        <span class="close" id="cerrarResultado">Cerrar</span>
+      </div>
+
+      <div id="resultadoWrap">
+        <!-- Se llena por JS -->
+      </div>
+    </div>
   </div>
 
-  <!-- Modal de foto ampliada -->
-  <div class="modal" id="modalFoto">
-    <div class="modal-content">
-      <img id="fotoAmpliada" src="">
+  <!-- Modal foto -->
+  <div id="modalFoto" class="modal modal-photo" aria-modal="true" role="dialog">
+    <div class="content">
+      <div class="head">
+        <div class="title">Foto</div>
+        <span class="close" id="cerrarFoto">Cerrar</span>
+      </div>
+      <img id="fotoAmpliada" src="" alt="Foto ampliada" />
     </div>
   </div>
 
@@ -148,95 +185,87 @@
     appId: "1:343352831024:web:9ac2d08b41874b15e611f5",
     measurementId: "G-LNX1B0RLK7"
   };
-  firebase.initializeApp(firebaseConfig);
-  const fs  = firebase.firestore();
-  const db  = firebase.database();
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
+  const db   = firebase.database();
+  const fs   = firebase.firestore();
 
   // ---------- Helpers UI ----------
   const $  = (s)=>document.querySelector(s);
   const $$ = (s)=>document.querySelectorAll(s);
   const mensaje = $('#mensaje');
-
   const sleep = (ms)=> new Promise(r=>setTimeout(r, ms));
+  const showLoader = (t)=> mensaje.innerHTML = `<div class="loader"><div class="spinner"></div><span>${t}</span></div>`;
+  const showText = (t)=> mensaje.textContent = t;
 
-  function showLoader(text){
-    mensaje.innerHTML = `
-      <div class="loader">
-        <div class="spinner"></div>
-        <span>${text}</span>
-      </div>`;
-  }
-  function showText(text){ mensaje.textContent = text; }
-
-  function openModal(id){ $(id).style.display = 'flex'; }
-  function closeModal(id){ $(id).style.display = 'none'; }
-
-  // Cerrar modales clicando fuera
+  const openModal  = (id)=> $(id).style.display='flex';
+  const closeModal = (id)=> $(id).style.display='none';
+  $('#cerrarResultado').addEventListener('click', ()=> closeModal('#modalResultado'));
+  $('#cerrarFoto').addEventListener('click', ()=> closeModal('#modalFoto'));
   $$('#modalResultado, #modalFoto').forEach(m=>{
-    m.addEventListener('click', e=>{
-      if (e.target.classList.contains('modal')) e.currentTarget.style.display='none';
-    });
+    m.addEventListener('click', (e)=>{ if(e.target.classList.contains('modal')) e.currentTarget.style.display='none'; });
   });
 
-  // ---------- Lógica principal ----------
+  // ---------- Consulta ----------
   $('#btnBuscar').addEventListener('click', async ()=>{
     const dni = $('#dniBuscar').value.trim();
-    if (!dni) return alert('Ingrese un DNI');
+    if (!dni){ alert('Ingresa un DNI.'); return; }
 
     const user = auth.currentUser;
-    if (!user) { showText('Debes iniciar sesión para consultar.'); return; }
+    if (!user){ showText('Debes iniciar sesión para consultar.'); return; }
 
     try{
-      // Paso 1: Cargando…
+      // Estado 1
       showLoader('⏳ Cargando…');
       await sleep(2000);
 
-      // Paso 2: Verificando confirmación…
+      // Estado 2
       showLoader('🔍 Verificando confirmación…');
       await sleep(2000);
 
-      // Buscar doc y datos de usuario en paralelo
+      // Traer datos y saldo actual en paralelo
       const [docSnap, userSnap] = await Promise.all([
-        fs.collection('doxin1').doc(dni).get(),
+        fs.collection('doxin1').doc(dni).get(),      // <— tu colección
         db.ref(`usuarios/${user.uid}`).once('value')
       ]);
 
-      const userData = userSnap.val() || {};
-
-      // No hay información
       if (!docSnap.exists){
         showText('❌ No hay información en la base de datos para ese DNI.');
         return;
       }
 
-      // Verificar créditos
-      const creditoActual = Number(userData.comisionesTotales || 0);
-      if (isNaN(creditoActual) || creditoActual < 3){
+      const userData = userSnap.val() || {};
+      const saldoActual = Number(userData.comisionesTotales || 0);
+      const usuarioNombre = userData?.nombre || (user.email?.split('@')[0]) || 'Usuario';
+
+      if (isNaN(saldoActual) || saldoActual < 3){
         showText('⚠️ No tienes créditos suficientes para realizar la consulta.');
         return;
       }
 
-      // Descontar 3 créditos de manera atómica
-      const nuevoSaldo = creditoActual - 3;
-      await db.ref(`usuarios/${user.uid}/comisionesTotales`).set(nuevoSaldo);
+      // Descontar 3 créditos usando transacción para evitar condiciones de carrera
+      await db.ref(`usuarios/${user.uid}/comisionesTotales`).transaction((curr)=>{
+        const v = Number(curr) || 0;
+        if (v < 3) return;            // abortará la transacción (no descuenta)
+        return v - 3;
+      }, (err, committed)=>{
+        if (err) throw err;
+        if (!committed) throw new Error('No se pudo descontar créditos (saldo cambió o es insuficiente).');
+      });
 
-      // Mostrar resultados
+      // Render del resultado
       const d = docSnap.data() || {};
       const fotoUrl = d.foto || '';
-      const nombreUsuario = userData?.nombre || (user.email?.split('@')[0]) || 'Usuario';
 
-      const modal = $('#modalData');
-      modal.innerHTML = `
-        <div class="photo">
-          <div class="title">Foto</div>
-          ${fotoUrl
-            ? `<img id="miniFoto" src="${fotoUrl}" alt="Foto" title="Clic para ampliar">`
-            : `<div style="color:#999">Sin foto</div>`
-          }
-        </div>
-
+      const html = `
         <div class="grid">
+          <div class="photo">
+            <div class="title">Foto</div>
+            ${fotoUrl
+              ? `<img id="miniFoto" src="${fotoUrl}" alt="Foto (toca para ampliar)">`
+              : `<div style="color:#9aa7bd">Sin foto</div>`
+            }
+          </div>
           <div class="col">
             <div class="title">🧑‍💼 Datos Personales</div>
             <div class="pair"><b>DNI:</b> ${d.dni ?? dni}</div>
@@ -244,16 +273,14 @@
             <div class="pair"><b>APELLIDOS:</b> ${d.apellidos ?? '-'}</div>
             <div class="pair"><b>GÉNERO:</b> ${d.genero ?? '-'}</div>
 
-            <div class="title" style="margin-top:10px">🎂 Nacimiento</div>
+            <div class="title" style="margin-top:8px">🎂 Nacimiento</div>
             <div class="pair"><b>FECHA NACIMIENTO:</b> ${d.fechaNacimiento ?? '-'}</div>
             <div class="pair"><b>EDAD:</b> ${d.edad ?? '-'}</div>
             <div class="pair"><b>DEPARTAMENTO:</b> ${d.departamento ?? '-'}</div>
             <div class="pair"><b>PROVINCIA:</b> ${d.provincia ?? '-'}</div>
             <div class="pair"><b>DISTRITO:</b> ${d.distrito ?? '-'}</div>
-          </div>
 
-          <div class="col">
-            <div class="title">📋 Información General</div>
+            <div class="title" style="margin-top:8px">📋 Información General</div>
             <div class="pair"><b>NIVEL EDUCATIVO:</b> ${d.nivelEducativo ?? '-'}</div>
             <div class="pair"><b>ESTADO CIVIL:</b> ${d.estadoCivil ?? '-'}</div>
             <div class="pair"><b>ESTATURA:</b> ${d.estatura ?? '-'}</div>
@@ -265,48 +292,46 @@
             <div class="pair"><b>MADRE:</b> ${d.madre ?? '-'}</div>
             <div class="pair"><b>RESTRICCIÓN:</b> ${d.restriccion ?? '-'}</div>
 
-            <div class="title" style="margin-top:10px">🏠 Domicilio</div>
+            <div class="title" style="margin-top:8px">🏠 Domicilio</div>
             <div class="pair"><b>DEPARTAMENTO:</b> ${d.dom_departamento ?? '-'}</div>
             <div class="pair"><b>PROVINCIA:</b> ${d.dom_provincia ?? '-'}</div>
             <div class="pair"><b>DISTRITO:</b> ${d.dom_distrito ?? '-'}</div>
             <div class="pair"><b>DIRECCIÓN:</b> ${d.direccion ?? '-'}</div>
 
-            <div class="title" style="margin-top:10px">📍 Ubigeos</div>
+            <div class="title" style="margin-top:8px">📍 Ubigeos</div>
             <div class="pair"><b>UBIGEO RENIEC:</b> ${d.ubigeoReniec ?? '-'}</div>
             <div class="pair"><b>UBIGEO INE:</b> ${d.ubigeoIne ?? '-'}</div>
             <div class="pair"><b>UBIGEO SUNAT:</b> ${d.ubigeoSunat ?? '-'}</div>
+
+            <hr>
+            <div class="pair"><b>Usuario:</b> ${usuarioNombre}</div>
           </div>
         </div>
-
-        <hr style="margin:14px 0">
-        <div class="pair"><b>Créditos disponibles:</b> ${nuevoSaldo}</div>
-        <div class="pair"><b>Usuario:</b> ${nombreUsuario}</div>
-
-        <div style="text-align:right"><span class="close" id="cerrarResultado">Cerrar</span></div>
       `;
-
-      showText(''); // Limpia mensaje
+      $('#resultadoWrap').innerHTML = html;
+      showText('');
       openModal('#modalResultado');
 
-      // foto ampliada
-      const mini = $('#miniFoto');
+      const mini = document.getElementById('miniFoto');
       if (mini){
         mini.addEventListener('click', ()=>{
-          $('#fotoAmpliada').src = fotoUrl;
+          document.getElementById('fotoAmpliada').src = fotoUrl;
           openModal('#modalFoto');
         });
       }
-      $('#cerrarResultado')?.addEventListener('click', ()=> closeModal('#modalResultado'));
 
     }catch(err){
-      console.error(err);
-      showText('❌ Ocurrió un error al procesar la consulta. Intenta nuevamente.');
+      console.error('[Consulta error]', err);
+      const code = err?.code ? ` (${err.code})` : '';
+      const msg  = err?.message || 'Error desconocido';
+      showText(`❌ Ocurrió un error al procesar la consulta${code}: ${msg}`);
     }
   });
 
-  // Mensaje si no hay sesión (cuando cambie)
+  // Mensaje inicial según sesión
   auth.onAuthStateChanged(u=>{
     if (!u) showText('Debes iniciar sesión para consultar.');
+    else    showText('Listo para consultar.');
   });
 </script>
 </body>
