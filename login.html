@@ -9,7 +9,6 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0f2027" />
 
-  <!-- Open Graph / Twitter solo si los necesitas -->
   <meta property="og:title" content="Iniciar sesión · Transferencia VIP" />
   <meta property="og:url" content="https://transferenciavip.xyz/login.html" />
 
@@ -142,31 +141,6 @@
   const $ = (s) => document.querySelector(s);
   const showAlert = (msg) => { const b = $('#alertBox'); b.textContent = msg; b.classList.add('show'); };
   const clearAlert = () => { const b = $('#alertBox'); b.textContent = ''; b.classList.remove('show'); };
-  const getParam = (k) => new URLSearchParams(location.search).get(k);
-
-  // Clave de referido (CORREGIDO)
-  const REF_KEY = 'multidox-netfree';
-  const LEGACY_KEYS = ['tvip_ref', 'ref'];
-
-  function getStoredRef(){
-    let ref = getParam('ref');
-    if (!ref) { try { ref = localStorage.getItem(REF_KEY); } catch(e) {} }
-    if (!ref) {
-      for (const k of LEGACY_KEYS) {
-        try { ref = localStorage.getItem(k); if (ref) break; } catch(e){}
-      }
-    }
-    return ref || '';
-  }
-
-  (function captureReferral(){
-    const ref = getParam('ref');
-    if (ref) {
-      try { localStorage.setItem(REF_KEY, ref); } catch(e){}
-      // opcional: eliminar legado
-      try { localStorage.removeItem('tvip_ref'); } catch(e){}
-    }
-  })();
 
   // Mostrar/ocultar contraseña
   document.addEventListener('DOMContentLoaded', () => {
@@ -175,12 +149,9 @@
     });
   });
 
-  // Redirección centralizada (CORREGIDO)
+  // Redirección centralizada
   function goHome(){
-    const ref = getStoredRef();
     const url = new URL('inicio.html', location.href);
-    if (ref) url.searchParams.set('ref', ref);
-    console.info('[Login] Redirigiendo a:', url.toString());
     location.assign(url.toString());
   }
 
@@ -188,20 +159,19 @@
   window.addEventListener('DOMContentLoaded', () => {
     const firebaseConfig = {
       apiKey: "AIzaSyCbL1fRbwVZRhdD88TeQSFgpvfjZOMwfIg",
-    authDomain: "multidoxnetfree.firebaseapp.com",
-    databaseURL: "https://multidoxnetfree-default-rtdb.firebaseio.com",
-    projectId: "multidoxnetfree",
-    storageBucket: "multidoxnetfree.firebasestorage.app",
-    messagingSenderId: "248995370956",
-    appId: "1:248995370956:web:455823a3778859bd4d2f69",
-    measurementId: "G-HDE68S5TYS"
-  };
+      authDomain: "multidoxnetfree.firebaseapp.com",
+      databaseURL: "https://multidoxnetfree-default-rtdb.firebaseio.com",
+      projectId: "multidoxnetfree",
+      storageBucket: "multidoxnetfree.firebasestorage.app",
+      messagingSenderId: "248995370956",
+      appId: "1:248995370956:web:455823a3778859bd4d2f69",
+      measurementId: "G-HDE68S5TYS"
+    };
     firebase.initializeApp(firebaseConfig);
 
     const auth = firebase.auth();
     const db   = firebase.database();
 
-    // Respaldo: si ya hay sesión, ir a inicio (CORREGIDO)
     auth.onAuthStateChanged((user) => {
       console.info('[AuthState] user:', !!user);
       if (user) goHome();
@@ -238,7 +208,6 @@
         const token = grecaptcha.getResponse();
         if (!token) throw new Error('Por favor verifica que no eres un robot.');
 
-        // Persistencia
         const rememberMe = $('#rememberMe').checked;
         await auth.setPersistence(rememberMe
           ? firebase.auth.Auth.Persistence.LOCAL
@@ -257,11 +226,8 @@
         }
 
         await db.ref('usuarios/' + credentialUser.user.uid).update({ lastLogin: Date.now() });
-
-        // reset visual reCAPTCHA
         try { grecaptcha.reset(); } catch(e){}
-
-        goHome(); // (CORREGIDO) redirección única
+        goHome();
       } catch(err){
         console.error('[Login error]', err);
         let msg = 'Ha ocurrido un error.';
@@ -275,7 +241,7 @@
       }
     });
 
-    // --- Google Sign-In (con fallback redirect) ---
+    // --- Google Sign-In ---
     $('#googleLoginBtn').addEventListener('click', async () => {
       clearAlert(); setLoading(true);
       try {
@@ -289,7 +255,7 @@
             google: true,
             lastLogin: Date.now()
           });
-          goHome(); // (CORREGIDO)
+          goHome();
         } catch(popupErr){
           console.warn('[Popup error] Usando redirect…', popupErr?.message);
           await auth.signInWithRedirect(provider);
@@ -302,7 +268,6 @@
       }
     });
 
-    // Tras volver de redirect (iOS/Safari), completar flujo:
     auth.getRedirectResult?.().then(async (res) => {
       if (res && res.user) {
         await db.ref('usuarios/' + res.user.uid).update({
@@ -317,4 +282,4 @@
   });
   </script>
 </body>
-          </html>
+  </html>
