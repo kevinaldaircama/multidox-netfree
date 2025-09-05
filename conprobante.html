@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Comprobante Yape</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #650D89;
+      color: #000;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: auto;
+      padding: 15px;
+      background-color: #650D89;
+    }
+
+    .logo {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .cerrar {
+      width: 35px;
+      height: 35px;
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      text-align: center;
+      line-height: 35px;
+      cursor: pointer;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+      color: #650D89;
+      font-size: 18px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .monto {
+      font-size: 30px;
+      margin: 5px 0;
+      font-weight: bold;
+    }
+
+    .nombre {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .datos {
+      font-size: 14px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      justify-content: flex-start;
+    }
+
+    .datos i {
+      font-weight: normal;
+      color: #666;
+    }
+
+    .datos span {
+      font-weight: bold;
+    }
+
+    .separator {
+      color: #aaa;
+      font-weight: normal;
+    }
+
+    .share {
+      color: #00bfa5;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .share i {
+      margin-right: 5px;
+    }
+
+    .caja {
+      background-color: #f0f0f0;
+      width: 30px;
+      height: 30px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .transaccion-title {
+      font-size: 13px;
+      color: gray;
+      font-weight: bold;
+      margin-bottom: 8px;
+      margin-top: 10px;
+    }
+
+    .info {
+      font-size: 13px;
+      color: gray;
+      padding-top: 10px;
+    }
+
+    .info p {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .info p strong {
+      font-weight: bold;
+      color: #000;
+    }
+
+    .info p span {
+      font-weight: bold;
+      color: #000;
+    }
+
+    .footer-img {
+      width: 100%;
+      border-radius: 15px;
+      margin-top: 20px;
+    }
+
+    .icono-seguridad {
+      width: 20px;
+      height: 20px;
+    }
+
+    .label-seguridad {
+      font-size: 13px; 
+      color: gray; 
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="comprobante">
+    <div class="logo">
+      <div class="cerrar" onclick="window.history.back()">×</div>
+    </div>
+
+    <div class="card">
+      <h2>
+        ¡Yapeaste!
+        <span class="share" onclick="compartir()">
+          <i class="fas fa-share-alt"></i> COMPARTIR
+        </span>
+      </h2>
+
+      <div class="monto" id="monto">S/ --</div>
+      <div class="nombre" id="nombre">Nombre</div>
+
+      <!-- Fecha y hora -->
+      <div class="datos">
+        <span id="fecha"><i class="far fa-calendar-alt"></i> <span></span></span>
+        <span class="separator">|</span>
+        <span id="hora"><i class="far fa-clock"></i> <span></span></span>
+      </div>
+
+      <!-- Código de seguridad -->
+      <div style="margin: 20px 0; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 15px 0;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 5px;">
+            <span class="label-seguridad">CÓDIGO DE SEGURIDAD</span>
+            <img src="imagen/sello.jpg" alt="icono seguridad" class="icono-seguridad">
+          </div>
+          <div style="display: flex; gap: 8px; margin-left: auto;" id="codigo-seguridad">
+            <div class="caja">-</div>
+            <div class="caja">-</div>
+            <div class="caja">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="transaccion-title">DATOS DE LA TRANSACCIÓN</div>
+
+      <div class="info">
+        <p><strong>Nro. de celular</strong> <span id="telefono">*********</span></p>
+        <p><strong>Destino</strong> <span>Yape</span></p>
+        <p><strong>Nro. de operación</strong> <span id="operacion">---</span></p>
+      </div>
+    </div>
+
+    <img class="footer-img" id="promo-img" src="imagen/1.jpg" alt="Promoción" />
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const nombre = decodeURIComponent(params.get("nombre") || "Sin nombre");
+    const telefono = decodeURIComponent(params.get("telefono") || "000000000");
+    const monto = decodeURIComponent(params.get("monto") || "0.00");
+
+    document.getElementById("nombre").textContent = nombre;
+    document.getElementById("monto").textContent = `S/ ${parseFloat(monto).toFixed(2)}`;
+    const ultimosDigitos = telefono.slice(-3);
+    document.getElementById("telefono").textContent = `*** ***${ultimosDigitos}`;
+
+    const fechaObj = new Date();
+    const opcionesFecha = { day: '2-digit', month: 'short', year: 'numeric' };
+    const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true };
+
+    document.querySelector("#fecha span").textContent = fechaObj.toLocaleDateString('es-PE', opcionesFecha);
+    document.querySelector("#hora span").textContent = fechaObj.toLocaleTimeString('es-PE', opcionesHora);
+
+    const codigo = Math.floor(Math.random() * 900 + 100).toString();
+    const cajas = document.getElementById("codigo-seguridad").children;
+    for (let i = 0; i < 3; i++) {
+      cajas[i].textContent = codigo[i];
+    }
+
+    document.getElementById("operacion").textContent = Math.floor(10000000 + Math.random() * 90000000);
+
+    const promociones = [
+      "imagen/1.jpg","imagen/2.jpg","imagen/3.jpg","imagen/4.jpg","imagen/5.jpg"
+    ];
+    document.getElementById("promo-img").src = promociones[Math.floor(Math.random() * promociones.length)];
+
+    async function compartir() {
+      const imageUrl = "https://i.imgur.com/2SG2kXr.png";
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], "comprobante.png", { type: blob.type });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: "Comprobante Yape",
+            text: "Te comparto el comprobante de Yape.",
+            files: [file],
+          });
+        } else {
+          alert("Tu navegador no soporta compartir archivos.");
+        }
+      } catch (err) {
+        console.error("Error al compartir:", err);
+        alert("Ocurrió un error al intentar compartir.");
+      }
+    }
+  </script>
+</body>
+</html>
