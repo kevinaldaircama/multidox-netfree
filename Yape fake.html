@@ -100,7 +100,7 @@
         mensaje.textContent = "Generando información...";
 
         setTimeout(() => {
-          const url = `yapelite.netlify.app/comprobante.html?nombre=${encodeURIComponent(nombre)}&telefono=${encodeURIComponent(telefono)}&monto=${encodeURIComponent(monto)}`;
+          const url = `comprobante.html?nombre=${encodeURIComponent(nombre)}&telefono=${encodeURIComponent(telefono)}&monto=${encodeURIComponent(monto)}`;
           window.location.href = url;
         }, 2000);
       }, 2000);
