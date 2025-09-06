@@ -11,9 +11,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />            
 <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>         
 <link rel="icon" href="3440119_ico.png" />      
-  <link rel="manifest" href="manifest.json" />      
-  <meta name="theme-color" content="#121212" />      
-  <link rel="icon" type="image/png" href="3440119_ico.png">      
+    
       
   <!-- Open Graph -->      
   <meta property="og:title" content="¡Únete a Transferencia VIP y gana créditos!" />      
@@ -27,175 +25,221 @@
   <meta name="twitter:description" content="Regístrate con un referido y recibe bonificaciones instantáneas." />      
   <meta name="twitter:image" content="https://transferenciavip.xyz/3440119_ico.png" />      
            
-  <style>            
-    #loaderOverlay {            
-      position: fixed;            
-      top: 0; left: 0;            
-      width: 100%; height: 100%;            
-      background-color: #000000cc;            
-      z-index: 3000;            
-      display: flex;            
-      align-items: center;            
-      justify-content: center;            
-    }            
-    .loader {            
-      border: 10px solid #f3f3f3;            
-      border-top: 10px solid #3498db;            
-      border-radius: 50%;            
-      width: 70px;            
-      height: 70px;            
-      animation: spin 1s linear infinite;            
-    }            
-    @keyframes spin {            
-      0% { transform: rotate(0deg); }            
-      100% { transform: rotate(360deg); }            
-    }            
-    body {            
-      background-color: #111;            
-      color: #fff;            
-      font-family: 'Segoe UI', sans-serif;            
-    }            
-    .dashboard-container { max-width: 1200px; margin: auto; padding: 1rem; }            
-    .header-section {            
-      background: linear-gradient(to right, #00223e, #3a6073);            
-      border-radius: 15px;            
-      text-align: center;            
-      padding: 2rem 1rem;            
-    }            
-    .header-section img { border-radius: 50%; width: 80px; }            
-    .credit-box, .queries-box {            
-      padding: 1rem;            
-      border-radius: 10px;            
-      margin-top: 1rem;            
-    }            
-    .credit-box { background-color: #202d3a; }            
-    .queries-box { background-color: #47222e; }            
-    .btn-credits, .btn-invite {            
-      background-color: #0d6efd;            
-      color: white;            
-      border: none;            
-      padding: 0.5rem 1rem;            
-      border-radius: 10px;            
-      margin: 1rem 0;            
-      display: inline-block;            
-      text-decoration: none;            
-    }            
-    .query-search {            
-      background-color: #222;            
-      padding: 1rem;            
-      border-radius: 10px;            
-      margin: 2rem 0;            
-    }            
-    .category-btn {            
-      background-color: #007bff;            
-      color: white;            
-      margin: 0.4rem;            
-      border: none;            
-      padding: 0.5rem 0.75rem;            
-      border-radius: 10px;            
-      display: inline-block;            
-      text-decoration: none;            
-    }            
-    .category-btn i { margin-right: 0.5rem; }            
-    .filter-tags {            
-      display: flex;            
-      flex-wrap: wrap;            
-      gap: 0.5rem;            
-      margin-top: 1rem;            
-    }            
-    .footer {            
-      margin-top: 3rem;            
-      text-align: center;            
-      font-size: 0.85rem;            
-      color: #aaa;            
-    }            
-    .sidebar {            
-      position: fixed;            
-      top: 0; left: -260px;            
-      width: 250px; height: 100%;            
-      background-color: #1e1e1e;            
-      transition: left 0.3s;            
-      padding: 1rem;            
-      z-index: 2000;            
-    }            
-    .sidebar.active { left: 0; }            
-    .sidebar .nav-link {            
-      color: #fff;            
-      display: flex;            
-      align-items: center;            
-      gap: 10px;            
-      margin: 0.5rem 0;            
-      text-decoration: none;            
-    }            
-    .sidebar .nav-link:hover { color: #0d6efd; }            
-    .hamburger {            
-      font-size: 24px;            
-      cursor: pointer;            
-      position: absolute;            
-      top: 10px;            
-      left: 10px;            
-      z-index: 2100;            
-    }            
-    .toggle-switch {            
-      display: flex;            
-      align-items: center;            
-      gap: 10px;            
-      margin-top: 1rem;            
-      cursor: pointer;            
-    }            
-            
-    /* Modo claro */            
-    body.light-mode {            
-      background-color: #f5f5f5;            
-      color: #111;            
-    }            
-    body.light-mode .sidebar { background-color: #e0e0e0; }            
-    body.light-mode .nav-link { color: #111; }            
-    body.light-mode .nav-link:hover { color: #0d6efd; }            
-    body.light-mode .dashboard-container { background-color: #fff; color: #000; }            
-    body.light-mode .credit-box { background-color: #dee2e6; }            
-    body.light-mode .queries-box { background-color: #f8d7da; }            
-            
-    /* Modal personalizado */            
-    .modal-content {            
-      background-color: #1a1a1a;            
-      color: white;            
-      border: 1px solid #444;            
-    }   
-    
-    /* Banner de saldo bajo */
-.saldo-banner{
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 1000;
-  background: #fff;
-  border: 1px solid #e8ecf3;
-  border-left: 6px solid #f59e0b; /* color de alerta */
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.12);
-  padding: 12px 14px;
-  max-width: 320px;
-  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color: #0b1220;
-}
-.saldo-content{ display: flex; align-items: center; gap: 10px; }
-.saldo-content span{ font-size: 14px; line-height: 1.4; }
-.saldo-btn{
-  margin-left: auto;
-  background: #0d6efd;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.saldo-btn:hover{ background:#0b5ed7; }
-@media (max-width: 480px){
-  .saldo-banner{ left: 12px; right: 12px; bottom: 12px; }
-    }
-  </style>            
+  <style>
+  /* Loader */
+  #loaderOverlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #0b0c10;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .loader {
+    border: 6px solid rgba(255,255,255,0.1);
+    border-top: 6px solid #0d6efd;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* General */
+  body {
+    background-color: #0b0c10;
+    color: #eaeaea;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  h1, h5 {
+    font-weight: 600;
+  }
+  a {
+    text-decoration: none;
+  }
+
+  /* Contenedor principal */
+  .dashboard-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 1rem;
+  }
+
+  /* Header */
+  .header-section {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    border-radius: 20px;
+    text-align: center;
+    padding: 2.5rem 1rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,.3);
+  }
+  .header-section img {
+    border-radius: 50%;
+    width: 90px;
+    border: 3px solid #fff;
+    margin-bottom: 1rem;
+  }
+  .header-section h1 {
+    font-size: 2rem;
+    margin: .5rem 0;
+  }
+
+  /* Cards */
+  .credit-box, .queries-box {
+    background: #161b22;
+    padding: 1.2rem;
+    border-radius: 15px;
+    margin-top: 1rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+  }
+  .credit-box h5, .queries-box h5 {
+    margin-bottom: .8rem;
+  }
+
+  /* Botones */
+  .btn-credits, .btn-invite, .saldo-btn {
+    background: linear-gradient(90deg, #0d6efd, #6610f2);
+    color: #fff !important;
+    border: none;
+    padding: .6rem 1.2rem;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all .3s ease;
+  }
+  .btn-credits:hover, .btn-invite:hover, .saldo-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,.25);
+  }
+
+  /* Sidebar */
+  .hamburger {
+    font-size: 26px;
+    cursor: pointer;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 2100;
+    background: #0d6efd;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.3);
+  }
+  .sidebar {
+    position: fixed;
+    top: 0; left: -270px;
+    width: 260px; height: 100%;
+    background-color: #111;
+    transition: left 0.3s ease;
+    padding: 1rem;
+    z-index: 2000;
+    box-shadow: 4px 0 15px rgba(0,0,0,.4);
+  }
+  .sidebar.active { left: 0; }
+  .sidebar h6 {
+    font-size: .9rem;
+    color: #bbb;
+    text-transform: uppercase;
+    margin-top: 1rem;
+  }
+  .sidebar .nav-link {
+    color: #eaeaea;
+    padding: .6rem;
+    border-radius: 8px;
+    margin: .3rem 0;
+    transition: background .3s;
+  }
+  .sidebar .nav-link:hover {
+    background: rgba(13,110,253,0.15);
+    color: #0d6efd;
+  }
+
+  /* Buscador */
+  .query-search {
+    background-color: #161b22;
+    padding: 1.2rem;
+    border-radius: 15px;
+    margin: 2rem 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+  }
+  .filter-tags .badge {
+    background: #0d6efd;
+    cursor: pointer;
+    transition: transform .2s;
+  }
+  .filter-tags .badge:hover {
+    transform: scale(1.05);
+  }
+
+  /* Categorías */
+  .category-btn {
+    display: inline-block;
+    background: #21262d;
+    color: #fff;
+    margin: .4rem;
+    padding: .6rem 1rem;
+    border-radius: 10px;
+    font-size: .9rem;
+    transition: background .3s, transform .3s;
+  }
+  .category-btn:hover {
+    background: #0d6efd;
+    transform: translateY(-2px);
+  }
+
+  /* Banner saldo bajo */
+  .saldo-banner {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #e8ecf3;
+    border-left: 6px solid #f59e0b;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.12);
+    padding: 12px 14px;
+    max-width: 320px;
+    font-family: 'Inter', sans-serif;
+    color: #0b1220;
+    animation: pulse 1.5s infinite;
+  }
+  .saldo-content { display: flex; align-items: center; gap: 10px; }
+  .saldo-content span { font-size: 14px; line-height: 1.4; }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #777;
+  }
+
+  /* Modo claro */
+  body.light-mode {
+    background: #f5f5f5;
+    color: #111;
+  }
+  body.light-mode .sidebar {
+    background: #eaeaea;
+    color: #111;
+  }
+  body.light-mode .credit-box,
+  body.light-mode .queries-box,
+  body.light-mode .query-search {
+    background: #fff;
+    color: #111;
+  }
+</style>
 </head>            
 <body>            
   <div id="loaderOverlay"><div class="loader"></div></div>            
@@ -441,97 +485,4 @@ window.addEventListener("load", function(){
     }            
   });            
 });            
-function cerrarSesion() {          
-  firebase.auth().signOut().then(() => {          
-    window.location.href = "login.html";          
-  }).catch((error) => {          
-    alert("Error al cerrar sesión: " + error.message);          
-  });          
-}          
-const consultas = [          
-  { nombre: "Consulta de pago", url: "consulta_pago.html" },          
-  { nombre: "Consulta por nombre", url: "consulta_nombre.html" },          
-  { nombre: "Tipo de cambio", url: "tipo_cambio.html" },          
-  { nombre: "Generador de VPS", url: "creación de vps.html" },          
-  { nombre: "Curso streaming", url: "curso.html" },          
-  { nombre: "Yape fake", url: "Yape fake.html" },          
-  { nombre: "Generador de servidores", url: "Generar servidores.html" },          
-  { nombre: "Inicio", url: "index.html" }          
-];          
-          
-document.getElementById("consultaInput").addEventListener("input", function () {          
-  const filtro = this.value.toLowerCase();          
-  const resultados = document.getElementById("resultadosBusqueda");          
-  resultados.innerHTML = ""; // Limpiar resultados          
-          
-  if (filtro.length === 0) return;          
-          
-  const filtradas = consultas.filter(c => c.nombre.toLowerCase().includes(filtro));          
-          
-  if (filtradas.length === 0) {          
-    resultados.innerHTML = '<div class="list-group-item bg-dark text-light">No hay coincidencias</div>';          
-    return;          
-  }          
-          
-  filtradas.forEach(c => {          
-    const item = document.createElement("a");          
-    item.href = c.url;          
-    item.className = "list-group-item list-group-item-action bg-dark text-white";          
-    item.textContent = c.nombre;          
-    resultados.appendChild(item);          
-  });          
-}); 
-  // Función para obtener las recargas del usuario
-function obtenerRecargas(uid) {
-  const ref = db.ref(`usuarios/${uid}/historialRecargas`);
-
-  ref.once('value', snapshot => {
-    const data = snapshot.val();
-    const numRecargas = data ? Object.keys(data).length : 0; // Número de recargas
-    const progreso = (numRecargas > 100) ? 100 : (numRecargas / 100) * 100; // Progreso hasta el 100%
-
-    // Actualizamos el número de recargas y la barra de progreso
-    document.getElementById('numRecargas').innerHTML = `${numRecargas} <a href="recargas" class="text-white" id="verHistorial">ver historial</a>`;
-    document.getElementById('recargasProgress').style.width = `${progreso}%`;
-  });
-}
-
-// Obtener el UID del usuario autenticado
-firebase.auth().onAuthStateChanged(user => {
-  if (user) {
-    const uid = user.uid;
-    obtenerRecargas(uid); // Llamamos la función con el UID del usuario
-  } else {
-    console.log('No hay usuario autenticado.');
-  }
-});
-  const banner = document.getElementById('saldoLowBanner');
-const saldoTxt = document.getElementById('saldoRestante');
-const irPlanesBtn = document.getElementById('irPlanesBtn');
-
-irPlanesBtn.addEventListener('click', () => {
-  window.location.href = 'planes.html';
-});
-
-// Ya tienes un auth.onAuthStateChanged arriba.
-// Para no duplicar listeners, añadimos el chequeo del banner dentro del existente.
-// Pero si prefieres mantenerlo aquí separado, también funciona:
-auth.onAuthStateChanged((user) => {
-  if (!user) {
-    banner.hidden = true; // ocultar si no hay sesión
-    return;
-  }
-  const refPath = db.ref(`usuarios/${user.uid}/comisionesTotales`);
-  refPath.on('value', (snap) => {
-    const valor = Number(snap.val() ?? 0);
-    if (valor >= 0 && valor <= 10) {
-      saldoTxt.textContent = valor.toFixed(0);
-      banner.hidden = false;
-    } else {
-      banner.hidden = true;
-    }
-  }, () => banner.hidden = true);
-});
-</script>            
-</body>            
-      </html>
+function cerrarSesion() { 
