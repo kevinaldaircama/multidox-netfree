@@ -2,163 +2,138 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel de Recarga de Créditos</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recuperar contraseña</title>
+
+  <link rel="icon" href="3440119_ico.png" />
+  <meta name="theme-color" content="#0f2027" />
+
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+      --card:#ffffff; --text:#0b1220; --muted:#5b708b;
+      --primary:#007bff; --primaryHover:#0056b3; --ring: rgba(0,123,255,.25);
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:Inter, sans-serif;
+      background:linear-gradient(-45deg,var(--bg1),var(--bg2),var(--bg3),var(--bg1));
+      background-size:400% 400%; animation: bgmove 18s ease infinite;
+      margin:0; display:grid; place-items:center; min-height:100vh; padding:16px;
+    }
+    .container{
+      width:100%; max-width:420px; background:var(--card); color:var(--text);
+      border-radius:16px; padding:28px 24px; box-shadow:0 18px 42px rgba(0,0,0,.22)
+    }
+    .brand{display:flex; align-items:center; gap:12px; justify-content:center; margin-bottom:10px}
+    .brand img{width:54px; height:54px; border-radius:12px}
+    h1{font-size:1.35rem; margin:0}
+    p.sub{color:var(--muted); margin:6px 0 18px; text-align:center}
+    form{display:grid; gap:12px}
+    .field{display:grid; gap:6px}
+    label{font-size:.92rem; font-weight:600}
+    input[type="email"]{
+      width:100%; padding:12px 14px; border:1px solid #d7dce3; border-radius:10px; font-size:15px;
+      outline:none; transition: box-shadow .15s ease, border-color .15s ease;
+    }
+    input:focus{border-color:var(--primary); box-shadow:0 0 0 4px var(--ring)}
+    button[type="submit"]{
+      width:100%; border:none; border-radius:10px; padding:12px 14px; font-size:16px; font-weight:700; cursor:pointer;
+      background:var(--primary); color:white; box-shadow:0 8px 18px rgba(0,123,255,.25);
+      transition: transform .1s ease, background .2s ease, box-shadow .2s ease;
+    }
+    button[type="submit"]:hover{ background:var(--primaryHover); transform: translateY(-1px) }
+    button[disabled]{ opacity:.65; cursor:not-allowed; transform:none }
+    .alert{display:none; margin:10px 0; padding:12px; border-radius:10px; font-size:.95rem;}
+    .alert.show{display:block}
+    .alert.ok{background:#f1fff4; color:#145a1a; border:1px solid #c9f0d1;}
+    .alert.error{background:#fff4f4; color:#8a1f1f; border:1px solid #ffd6d6;}
+    @keyframes bgmove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  </style>
+
+  <!-- Firebase + EmailJS -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
-<body class="bg-dark text-white">
+<body>
+
 <div class="container">
-  <div class="credit-box" id="adminPanel" style="display:none; margin-top:50px; background:#202d3a; padding:20px; border-radius:12px;">
-    <h3 class="text-center">Panel de Recarga de Créditos</h3>
-    <hr>
-    <h5>Saldo Total</h5>
-    <p id="saldoUsuario">$0.00 <span class="text-muted">saldo actual a la fecha</span></p>
-    <p id="uidUsuario">UID: cargando...</p>
-    <p>Plan actual: <span class="text-warning" id="tipoPlan">FREE</span></p>
-    <div class="progress mb-3">
-      <div class="progress-bar bg-success" style="width:100%">Saldo</div>
+  <div class="brand">
+    <img src="3440119_ico.png" alt="Logo"/>
+    <h1>Recuperar contraseña</h1>
+  </div>
+  <p class="sub">Ingresa tu correo y te enviaremos un enlace personalizado para restablecerla.</p>
+
+  <div class="alert" id="alertBox"></div>
+
+  <form id="resetForm">
+    <div class="field">
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" placeholder="correo@dominio.com" required />
     </div>
-    <h5>Recargar Créditos</h5>
-    <input type="text" id="inputUid" class="form-control" placeholder="Ingrese UID del usuario">
-    <input type="email" id="inputEmail" class="form-control" placeholder="Ingrese correo del usuario">
-    <input type="text" id="inputMonto" class="form-control" placeholder="Ej: +50 para recargar, -50 para descontar">
-    <button class="btn btn-success w-100 mt-2" onclick="recargarCreditos()">Procesar</button>
-  </div>
-  <div id="noAccessMsg" class="text-danger text-center mt-5 fw-bold" style="display:none;">
-    Acceso denegado: solo administradores autorizados pueden usar este panel.
-  </div>
+    <button type="submit" id="submitBtn"><span class="btn-text">Enviar enlace</span></button>
+  </form>
 </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <script>
-  // Configuración Firebase
+  // Helpers
+  const $ = (s)=>document.querySelector(s);
+  const showAlert = (msg, type="error")=>{
+    const box = $('#alertBox');
+    box.textContent = msg;
+    box.className = 'alert show ' + type;
+  };
+
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCbL1fRbwVZRhdD88TeQSFgpvfjZOMwfIg",
     authDomain: "multidoxnetfree.firebaseapp.com",
-    databaseURL: "https://multidoxnetfree-default-rtdb.firebaseio.com",
     projectId: "multidoxnetfree",
-    storageBucket: "multidoxnetfree.firebasestorage.app",
-    messagingSenderId: "248995370956",
     appId: "1:248995370956:web:455823a3778859bd4d2f69",
-    measurementId: "G-HDE68S5TYS"
   };
   firebase.initializeApp(firebaseConfig);
-
   const auth = firebase.auth();
-  const db = firebase.database();
 
-  // Configuración EmailJS
-  emailjs.init("9gtu9_iC8X0m_my06"); // <-- Public Key
+  // Inicializar EmailJS
+  emailjs.init("9gtu9_iC8X0m_my06"); // 🔹 Reemplaza con tu Public Key
 
-  const admins = ["admin1@gmail.com", "kevinaldaircamachoserna51@gmail.com"];
+  // Form handler
+  $('#resetForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const email = $('#email').value.trim().toLowerCase();
+    const btn = $('#submitBtn');
+    btn.disabled = true;
+    btn.textContent = "Enviando...";
 
-  // Autenticación
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      const email = user.email;
-      const uid = user.uid;
-      document.getElementById('uidUsuario').innerText = `UID: ${uid}`;
+    try {
+      if (!email) throw new Error("Ingresa un correo válido");
 
-      if (admins.includes(email)) {
-        document.getElementById('adminPanel').style.display = 'block';
+      // Generar link personalizado con Firebase
+      const actionCodeSettings = {
+        url: "https://transferenciavip.xyz/login",
+        handleCodeInApp: true,
+      };
+      const link = await auth.generatePasswordResetLink(email, actionCodeSettings);
 
-        // Escuchar saldo
-        db.ref(`usuarios/${uid}/comisionesTotales`).on('value', snapshot => {
-          const creditos = parseFloat(snapshot.val()) || 0;
-          document.getElementById('saldoUsuario').innerHTML =
-            `$${creditos.toFixed(2)} <span class="text-muted">saldo actual a la fecha</span>`;
-        });
+      // Enviar correo con EmailJS
+      await emailjs.send("TU_SERVICE_ID", "template_hcayiet", {
+        to_email: email,
+        reset_url: link,
+      });
 
-        // Escuchar plan
-        db.ref(`usuarios/${uid}/plan`).on('value', snap => {
-          const plan = snap.val() || 'FREE';
-          document.getElementById('tipoPlan').innerText = plan;
-        });
-      } else {
-        document.getElementById('noAccessMsg').style.display = 'block';
-      }
-    } else {
-      document.getElementById('noAccessMsg').innerText = "No has iniciado sesión.";
-      document.getElementById('noAccessMsg').style.display = 'block';
+      showAlert("Te enviamos un correo con las instrucciones. Revisa tu bandeja de entrada.", "ok");
+    } catch (err) {
+      console.error(err);
+      showAlert("Hubo un error al enviar el correo. Intenta de nuevo.", "error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Enviar enlace";
     }
   });
-
-  // Recargar créditos
-  function recargarCreditos() {
-    const uid = document.getElementById('inputUid').value.trim();
-    const emailUsuario = document.getElementById('inputEmail').value.trim();
-    const input = document.getElementById('inputMonto').value.trim();
-    const signo = input.charAt(0);
-    const valor = parseFloat(input.substring(1));
-
-    if (!uid || !emailUsuario || (signo !== '+' && signo !== '-') || isNaN(valor) || valor <= 0) {
-      alert('Ingrese UID, correo válido y monto con signo + o - al inicio.');
-      return;
-    }
-
-    const creditosRef = db.ref(`usuarios/${uid}/comisionesTotales`);
-    const historialRef = db.ref(`usuarios/${uid}/historialRecargas`);
-
-    creditosRef.once('value')
-      .then(snapshot => {
-        const saldoActual = parseFloat(snapshot.val()) || 0;
-        const nuevoSaldo = signo === '+' ? saldoActual + valor : Math.max(0, saldoActual - valor);
-        return creditosRef.set(nuevoSaldo).then(() => nuevoSaldo);
-      })
-      .then(nuevoSaldo => {
-        alert('Operación exitosa.');
-
-        // Actualizar plan
-        let nuevoPlan = "FREE";
-        if (nuevoSaldo >= 300 && nuevoSaldo <= 330) nuevoPlan = "DIAMANTE";
-        else if (nuevoSaldo >= 200) nuevoPlan = "VIP";
-        else if (nuevoSaldo >= 100 && nuevoSaldo < 120) nuevoPlan = "PREMIUM";
-        else if (nuevoSaldo >= 80) nuevoPlan = "ORO";
-        else if (nuevoSaldo >= 50) nuevoPlan = "BRONCE";
-
-        db.ref(`usuarios/${uid}/plan`).set(nuevoPlan);
-
-        const fecha = new Date();
-
-        // Enviar correo con EmailJS
-        emailjs.send("service_kx5bg2c", "template_el7m8n6", {
-          to_email: emailUsuario,
-          to_name: uid,
-          logo: "https://transferenciavip.xyz/3440119_ico.png",
-          fecha: fecha.toLocaleDateString(),
-          hora: fecha.toLocaleTimeString(),
-          mensaje: `Tu saldo ha sido ${signo === '+' ? 'aumentado' : 'descontado'} en ${valor.toFixed(2)} créditos.`,
-          plan: nuevoPlan
-        }).then(() => {
-          console.log("📧 Correo enviado a:", emailUsuario);
-        }).catch(err => console.error("❌ Error al enviar email:", err));
-
-        // Guardar en historial
-        historialRef.push({
-          dia: fecha.toLocaleDateString(),
-          hora: fecha.toLocaleTimeString(),
-          creditos: valor,
-          metodo: 'Admin Panel',
-          estado: signo === '+' ? 'Recargado' : 'Descontado',
-          id: uid,
-        });
-
-        // Limpiar inputs
-        document.getElementById('inputUid').value = '';
-        document.getElementById('inputEmail').value = '';
-        document.getElementById('inputMonto').value = '';
-      })
-      .catch(error => {
-        console.error('Error durante la operación de saldo:', error);
-        alert('Error al procesar la operación.');
-      });
-  }
 </script>
 </body>
 </html>
