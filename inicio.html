@@ -218,13 +218,46 @@
       <p>Encuentra conexiones, construye historias: tu búsqueda comienza aquí.</p>              
       <a href="planes" class="btn-credits">Comprar Créditos <i class="fas fa-coins"></i></a>              
     </div>              
-             <!-- Aviso de saldo bajo -->  
-<div id="saldoLowBanner" class="saldo-banner" hidden>  
-  <div class="saldo-content">  
-    <span>⚠️ Saldo bajo: te quedan <strong id="saldoRestante">0</strong> créditos.</span>  
-    <button id="irPlanesBtn" class="saldo-btn" type="button">Recargar ahora</button>  
-  </div>  
-</div>  
+<!-- Fragmento de notificación -->
+<div class="notificacion" id="mensaje"></div>
+
+<style>
+  .notificacion {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+    display: none;
+    animation: fadeIn 0.8s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  const nombres = ["Kevin", "Ana", "Luis", "María", "Carlos", "Sofía", "Andrés", "Valeria", "Pedro", "Camila"];
+  const notificacion = document.getElementById("mensaje");
+
+  function generarNotificacion() {
+    const nombre = nombres[Math.floor(Math.random() * nombres.length)];
+    const creditos = Math.floor(Math.random() * (100 - 5 + 1)) + 5;
+    notificacion.textContent = `${nombre} ha recargado ${creditos} créditos`;
+    notificacion.style.display = "block";
+    setTimeout(() => { notificacion.style.display = "none"; }, 4000);
+  }
+
+  setInterval(generarNotificacion, 5000);
+  generarNotificacion();
+</script>
     <div class="row">              
       <div class="col-md-6 credit-box">              
         <h5>Saldo Total</h5>              
