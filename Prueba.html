@@ -22,6 +22,7 @@
     </div>
     <h5>Recargar Créditos</h5>
     <input type="text" id="inputUid" class="form-control" placeholder="Ingrese UID del usuario">
+    <input type="email" id="inputEmail" class="form-control" placeholder="Ingrese correo del usuario">
     <input type="text" id="inputMonto" class="form-control" placeholder="Ej: +50 para recargar, -50 para descontar">
     <button class="btn btn-success w-100 mt-2" onclick="recargarCreditos()">Procesar</button>
   </div>
@@ -36,7 +37,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-  // Inicializar Firebase
+  // Configuración Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCbL1fRbwVZRhdD88TeQSFgpvfjZOMwfIg",
     authDomain: "multidoxnetfree.firebaseapp.com",
@@ -52,7 +53,7 @@
   const auth = firebase.auth();
   const db = firebase.database();
 
-  // Config EmailJS
+  // Configuración EmailJS
   emailjs.init("9gtu9_iC8X0m_my06"); // <-- Public Key
 
   const admins = ["admin1@gmail.com", "kevinaldaircamachoserna51@gmail.com"];
@@ -63,13 +64,6 @@
       const email = user.email;
       const uid = user.uid;
       document.getElementById('uidUsuario').innerText = `UID: ${uid}`;
-
-      // Guardar email en BD si no existe
-      db.ref("usuarios/" + uid + "/email").once("value").then(snapshot => {
-        if (!snapshot.exists()) {
-          db.ref("usuarios/" + uid + "/email").set(email);
-        }
-      });
 
       if (admins.includes(email)) {
         document.getElementById('adminPanel').style.display = 'block';
@@ -84,8 +78,7 @@
         // Escuchar plan
         db.ref(`usuarios/${uid}/plan`).on('value', snap => {
           const plan = snap.val() || 'FREE';
-          const tipoPlanEl = document.getElementById('tipoPlan');
-          tipoPlanEl.innerText = plan;
+          document.getElementById('tipoPlan').innerText = plan;
         });
       } else {
         document.getElementById('noAccessMsg').style.display = 'block';
@@ -99,12 +92,13 @@
   // Recargar créditos
   function recargarCreditos() {
     const uid = document.getElementById('inputUid').value.trim();
+    const emailUsuario = document.getElementById('inputEmail').value.trim();
     const input = document.getElementById('inputMonto').value.trim();
     const signo = input.charAt(0);
     const valor = parseFloat(input.substring(1));
 
-    if (!uid || (signo !== '+' && signo !== '-') || isNaN(valor) || valor <= 0) {
-      alert('Ingrese un UID válido y un monto con signo + o - al inicio.');
+    if (!uid || !emailUsuario || (signo !== '+' && signo !== '-') || isNaN(valor) || valor <= 0) {
+      alert('Ingrese UID, correo válido y monto con signo + o - al inicio.');
       return;
     }
 
@@ -130,15 +124,22 @@
 
         db.ref(`usuarios/${uid}/plan`).set(nuevoPlan);
 
-        // Guardar notificación
-        db.ref(`usuarios/${uid}/notificacionRecarga`).set({
+        const fecha = new Date();
+
+        // Enviar correo con EmailJS
+        emailjs.send("service_kx5bg2c", "template_el7m8n6", {
+          to_email: emailUsuario,
+          to_name: uid,
+          logo: "https://transferenciavip.xyz/3440119_ico.png",
+          fecha: fecha.toLocaleDateString(),
+          hora: fecha.toLocaleTimeString(),
           mensaje: `Tu saldo ha sido ${signo === '+' ? 'aumentado' : 'descontado'} en ${valor.toFixed(2)} créditos.`,
-          timestamp: Date.now(),
-          leido: false
-        });
+          plan: nuevoPlan
+        }).then(() => {
+          console.log("📧 Correo enviado a:", emailUsuario);
+        }).catch(err => console.error("❌ Error al enviar email:", err));
 
         // Guardar en historial
-        const fecha = new Date();
         historialRef.push({
           dia: fecha.toLocaleDateString(),
           hora: fecha.toLocaleTimeString(),
@@ -148,27 +149,9 @@
           id: uid,
         });
 
-        // Obtener correo del usuario
-        db.ref("usuarios/" + uid + "/email").once("value").then(snap => {
-          const emailUsuario = snap.val();
-          if (emailUsuario) {
-            // Enviar correo con EmailJS
-            emailjs.send("service_kx5bg2c", "template_el7m8n6", {
-              to_email: emailUsuario,
-              to_name: uid,
-              logo: "https://transferenciavip.xyz/3440119_ico.png",
-              fecha: fecha.toLocaleDateString(),
-              hora: fecha.toLocaleTimeString(),
-              mensaje: `Tu saldo ha sido ${signo === '+' ? 'aumentado' : 'descontado'} en ${valor.toFixed(2)} créditos.`,
-              plan: nuevoPlan
-            }).then(() => {
-              console.log("📧 Correo enviado a:", emailUsuario);
-            }).catch(err => console.error("❌ Error al enviar email:", err));
-          }
-        });
-
         // Limpiar inputs
         document.getElementById('inputUid').value = '';
+        document.getElementById('inputEmail').value = '';
         document.getElementById('inputMonto').value = '';
       })
       .catch(error => {
