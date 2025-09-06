@@ -120,7 +120,7 @@
       const link = await auth.generatePasswordResetLink(email, actionCodeSettings);
 
       // Enviar correo con EmailJS
-      await emailjs.send("TU_SERVICE_ID", "template_hcayiet", {
+      await emailjs.send("service_kx5bg2c", "template_hcayiet", {
         to_email: email,
         reset_url: link,
       });
