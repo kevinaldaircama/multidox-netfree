@@ -6,34 +6,11 @@
   <title>Panel de Recarga de Créditos</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link rel="icon" href="3440119_ico.png" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#121212" />
-  <link rel="icon" type="image/png" href="3440119_ico.png">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="¡Únete a Transferencia VIP y gana créditos!" />
-  <meta property="og:description" content="Regístrate con este enlace de referido y recibe hasta 10 créditos gratis. Empieza a ganar hoy." />
-  <meta property="og:image" content="https://transferenciavip.xyz/3440119_ico.png" />
-  <meta property="og:url" content="https://transferenciavip.xyz" />
-  <meta property="og:type" content="website" />
-  <!-- Twitter Cards -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="¡Gana créditos con Transferencia VIP!" />
-  <meta name="twitter:description" content="Regístrate con un referido y recibe bonificaciones instantáneas." />
-  <meta name="twitter:image" content="https://transferenciavip.xyz/3440119_ico.png" />
-  
-  <style>
-    body { background-color: #111; color: #fff; font-family: 'Segoe UI', sans-serif; }
-    .credit-box { background-color: #202d3a; padding: 1rem; border-radius: 10px; margin-top: 2rem; max-width: 500px; margin-left: auto; margin-right: auto; display: none; }
-    .form-control, .btn { margin-top: 0.5rem; }
-    #uidUsuario { font-size: 0.85rem; color: #aaa; }
-    .no-access { text-align: center; color: red; margin-top: 3rem; font-weight: bold; display: none; }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
-<body>
+<body class="bg-dark text-white">
 <div class="container">
-  <div class="credit-box" id="adminPanel">
+  <div class="credit-box" id="adminPanel" style="display:none; margin-top:50px; background:#202d3a; padding:20px; border-radius:12px;">
     <h3 class="text-center">Panel de Recarga de Créditos</h3>
     <hr>
     <h5>Saldo Total</h5>
@@ -45,17 +22,22 @@
     </div>
     <h5>Recargar Créditos</h5>
     <input type="text" id="inputUid" class="form-control" placeholder="Ingrese UID del usuario">
+    <input type="email" id="inputEmail" class="form-control" placeholder="Ingrese correo del usuario">
     <input type="text" id="inputMonto" class="form-control" placeholder="Ej: +50 para recargar, -50 para descontar">
-    <button class="btn btn-success w-100" onclick="recargarCreditos()">Procesar</button>
+    <button class="btn btn-success w-100 mt-2" onclick="recargarCreditos()">Procesar</button>
   </div>
-  <div id="noAccessMsg" class="no-access">Acceso denegado: solo administradores autorizados pueden usar este panel.</div>
+  <div id="noAccessMsg" class="text-danger text-center mt-5 fw-bold" style="display:none;">
+    Acceso denegado: solo administradores autorizados pueden usar este panel.
+  </div>
 </div>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
+  // Configuración Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCbL1fRbwVZRhdD88TeQSFgpvfjZOMwfIg",
     authDomain: "multidoxnetfree.firebaseapp.com",
@@ -66,13 +48,17 @@
     appId: "1:248995370956:web:455823a3778859bd4d2f69",
     measurementId: "G-HDE68S5TYS"
   };
-
   firebase.initializeApp(firebaseConfig);
+
   const auth = firebase.auth();
   const db = firebase.database();
 
+  // Configuración EmailJS
+  emailjs.init("9gtu9_iC8X0m_my06"); // <-- Public Key
+
   const admins = ["admin1@gmail.com", "kevinaldaircamachoserna51@gmail.com"];
 
+  // Autenticación
   auth.onAuthStateChanged(user => {
     if (user) {
       const email = user.email;
@@ -82,27 +68,17 @@
       if (admins.includes(email)) {
         document.getElementById('adminPanel').style.display = 'block';
 
+        // Escuchar saldo
         db.ref(`usuarios/${uid}/comisionesTotales`).on('value', snapshot => {
           const creditos = parseFloat(snapshot.val()) || 0;
           document.getElementById('saldoUsuario').innerHTML =
             `$${creditos.toFixed(2)} <span class="text-muted">saldo actual a la fecha</span>`;
         });
 
+        // Escuchar plan
         db.ref(`usuarios/${uid}/plan`).on('value', snap => {
           const plan = snap.val() || 'FREE';
-          const tipoPlanEl = document.getElementById('tipoPlan');
-          tipoPlanEl.innerText = plan;
-
-          tipoPlanEl.classList.remove(
-            'text-warning', 'text-info', 'text-danger', 'text-muted', 'text-primary', 'text-success'
-          );
-
-          if (plan === 'FREE') tipoPlanEl.classList.add('text-warning');
-          else if (plan === 'BRONCE') tipoPlanEl.classList.add('text-muted');
-          else if (plan === 'ORO') tipoPlanEl.classList.add('text-info');
-          else if (plan === 'PREMIUM') tipoPlanEl.classList.add('text-danger');
-          else if (plan === 'VIP') tipoPlanEl.classList.add('text-primary');
-          else if (plan === 'DIAMANTE') tipoPlanEl.classList.add('text-success');
+          document.getElementById('tipoPlan').innerText = plan;
         });
       } else {
         document.getElementById('noAccessMsg').style.display = 'block';
@@ -113,14 +89,16 @@
     }
   });
 
+  // Recargar créditos
   function recargarCreditos() {
     const uid = document.getElementById('inputUid').value.trim();
+    const emailUsuario = document.getElementById('inputEmail').value.trim();
     const input = document.getElementById('inputMonto').value.trim();
     const signo = input.charAt(0);
     const valor = parseFloat(input.substring(1));
 
-    if (!uid || (signo !== '+' && signo !== '-') || isNaN(valor) || valor <= 0) {
-      alert('Ingrese un UID válido y un monto con signo + o - al inicio.');
+    if (!uid || !emailUsuario || (signo !== '+' && signo !== '-') || isNaN(valor) || valor <= 0) {
+      alert('Ingrese UID, correo válido y monto con signo + o - al inicio.');
       return;
     }
 
@@ -136,45 +114,44 @@
       .then(nuevoSaldo => {
         alert('Operación exitosa.');
 
+        // Actualizar plan
         let nuevoPlan = "FREE";
-        if (nuevoSaldo >= 300 && nuevoSaldo <= 330) {
-          nuevoPlan = "DIAMANTE";
-        } else if (nuevoSaldo >= 200) {
-          nuevoPlan = "VIP";
-        } else if (nuevoSaldo >= 100 && nuevoSaldo < 120) {
-          nuevoPlan = "PREMIUM";
-        } else if (nuevoSaldo >= 80) {
-          nuevoPlan = "ORO";
-        } else if (nuevoSaldo >= 50) {
-          nuevoPlan = "BRONCE";
-        }
+        if (nuevoSaldo >= 300 && nuevoSaldo <= 330) nuevoPlan = "DIAMANTE";
+        else if (nuevoSaldo >= 200) nuevoPlan = "VIP";
+        else if (nuevoSaldo >= 100 && nuevoSaldo < 120) nuevoPlan = "PREMIUM";
+        else if (nuevoSaldo >= 80) nuevoPlan = "ORO";
+        else if (nuevoSaldo >= 50) nuevoPlan = "BRONCE";
 
-        db.ref(`usuarios/${uid}/plan`).set(nuevoPlan).catch(err => console.warn("Error al guardar plan:", err));
+        db.ref(`usuarios/${uid}/plan`).set(nuevoPlan);
 
-        db.ref(`usuarios/${uid}/notificacionRecarga`).set({
-          mensaje: `Tu saldo ha sido ${signo === '+' ? 'aumentado' : 'reducido'} en ${valor.toFixed(2)} créditos.`,
-          timestamp: Date.now(),
-          leido: false
-        }).catch(err => console.warn("Error al guardar notificación:", err));
+        const fecha = new Date();
+
+        // Enviar correo con EmailJS
+        emailjs.send("service_kx5bg2c", "template_el7m8n6", {
+          to_email: emailUsuario,
+          to_name: uid,
+          logo: "https://transferenciavip.xyz/3440119_ico.png",
+          fecha: fecha.toLocaleDateString(),
+          hora: fecha.toLocaleTimeString(),
+          mensaje: `Tu saldo ha sido ${signo === '+' ? 'aumentado' : 'descontado'} en ${valor.toFixed(2)} créditos.`,
+          plan: nuevoPlan
+        }).then(() => {
+          console.log("📧 Correo enviado a:", emailUsuario);
+        }).catch(err => console.error("❌ Error al enviar email:", err));
 
         // Guardar en historial
-        const fecha = new Date();
-        const historialData = {
+        historialRef.push({
           dia: fecha.toLocaleDateString(),
           hora: fecha.toLocaleTimeString(),
           creditos: valor,
-          metodo: 'Método de pago',
+          metodo: 'Admin Panel',
           estado: signo === '+' ? 'Recargado' : 'Descontado',
           id: uid,
-        };
+        });
 
-        historialRef.push(historialData).catch(err => console.warn("Error al guardar historial de recarga:", err));
-
-        if (auth.currentUser && auth.currentUser.uid === uid) {
-          document.getElementById('tipoPlan').innerText = nuevoPlan;
-        }
-
+        // Limpiar inputs
         document.getElementById('inputUid').value = '';
+        document.getElementById('inputEmail').value = '';
         document.getElementById('inputMonto').value = '';
       })
       .catch(error => {
