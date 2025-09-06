@@ -6,22 +6,11 @@
   <title>Panel de Recarga de Créditos</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link rel="icon" href="3440119_ico.png" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#121212" />
-  <link rel="icon" type="image/png" href="3440119_ico.png">
-
-  <style>
-    body { background-color: #111; color: #fff; font-family: 'Segoe UI', sans-serif; }
-    .credit-box { background-color: #202d3a; padding: 1rem; border-radius: 10px; margin-top: 2rem; max-width: 500px; margin-left: auto; margin-right: auto; display: none; }
-    .form-control, .btn { margin-top: 0.5rem; }
-    #uidUsuario { font-size: 0.85rem; color: #aaa; }
-    .no-access { text-align: center; color: red; margin-top: 3rem; font-weight: bold; display: none; }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
-<body>
+<body class="bg-dark text-white">
 <div class="container">
-  <div class="credit-box" id="adminPanel">
+  <div class="credit-box" id="adminPanel" style="display:none; margin-top:50px; background:#202d3a; padding:20px; border-radius:12px;">
     <h3 class="text-center">Panel de Recarga de Créditos</h3>
     <hr>
     <h5>Saldo Total</h5>
@@ -34,9 +23,11 @@
     <h5>Recargar Créditos</h5>
     <input type="text" id="inputUid" class="form-control" placeholder="Ingrese UID del usuario">
     <input type="text" id="inputMonto" class="form-control" placeholder="Ej: +50 para recargar, -50 para descontar">
-    <button class="btn btn-success w-100" onclick="recargarCreditos()">Procesar</button>
+    <button class="btn btn-success w-100 mt-2" onclick="recargarCreditos()">Procesar</button>
   </div>
-  <div id="noAccessMsg" class="no-access">Acceso denegado: solo administradores autorizados pueden usar este panel.</div>
+  <div id="noAccessMsg" class="text-danger text-center mt-5 fw-bold" style="display:none;">
+    Acceso denegado: solo administradores autorizados pueden usar este panel.
+  </div>
 </div>
 
 <!-- Firebase -->
@@ -44,14 +35,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
 <script>
-  emailjs.init("9gtu9_iC8X0m_my06"); // <-- tu Public Key
-</script>
-
-<script>
-  // 🔥 Config Firebase
+  // Inicializar Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCbL1fRbwVZRhdD88TeQSFgpvfjZOMwfIg",
     authDomain: "multidoxnetfree.firebaseapp.com",
@@ -62,28 +47,41 @@
     appId: "1:248995370956:web:455823a3778859bd4d2f69",
     measurementId: "G-HDE68S5TYS"
   };
-
   firebase.initializeApp(firebaseConfig);
+
   const auth = firebase.auth();
   const db = firebase.database();
 
+  // Config EmailJS
+  emailjs.init("9gtu9_iC8X0m_my06"); // <-- Public Key
+
   const admins = ["admin1@gmail.com", "kevinaldaircamachoserna51@gmail.com"];
 
+  // Autenticación
   auth.onAuthStateChanged(user => {
     if (user) {
       const email = user.email;
       const uid = user.uid;
       document.getElementById('uidUsuario').innerText = `UID: ${uid}`;
 
+      // Guardar email en BD si no existe
+      db.ref("usuarios/" + uid + "/email").once("value").then(snapshot => {
+        if (!snapshot.exists()) {
+          db.ref("usuarios/" + uid + "/email").set(email);
+        }
+      });
+
       if (admins.includes(email)) {
         document.getElementById('adminPanel').style.display = 'block';
 
+        // Escuchar saldo
         db.ref(`usuarios/${uid}/comisionesTotales`).on('value', snapshot => {
           const creditos = parseFloat(snapshot.val()) || 0;
           document.getElementById('saldoUsuario').innerHTML =
             `$${creditos.toFixed(2)} <span class="text-muted">saldo actual a la fecha</span>`;
         });
 
+        // Escuchar plan
         db.ref(`usuarios/${uid}/plan`).on('value', snap => {
           const plan = snap.val() || 'FREE';
           const tipoPlanEl = document.getElementById('tipoPlan');
@@ -98,28 +96,7 @@
     }
   });
 
-  // 📩 Función para enviar correo
-  function enviarCorreo(email, nombre, accion, monto, nuevoSaldo) {
-    const fecha = new Date();
-
-    const data = {
-      to_email: email,
-      to_name: nombre || "Usuario",
-      accion: accion,
-      monto: monto,
-      nuevoSaldo: nuevoSaldo,
-      fecha: fecha.toLocaleDateString(),
-      hora: fecha.toLocaleTimeString(),
-      year: fecha.getFullYear(),
-      logo_url: "https://transferenciavip.xyz/3440119_ico.png"
-    };
-
-    emailjs.send("service_kx5bg2c", "template_el7m8n6", data)
-      .then(() => console.log("📩 Correo enviado a", email))
-      .catch(err => console.error("❌ Error al enviar correo:", err));
-  }
-
-  // 🔄 Función recarga/descuento
+  // Recargar créditos
   function recargarCreditos() {
     const uid = document.getElementById('inputUid').value.trim();
     const input = document.getElementById('inputMonto').value.trim();
@@ -143,6 +120,16 @@
       .then(nuevoSaldo => {
         alert('Operación exitosa.');
 
+        // Actualizar plan
+        let nuevoPlan = "FREE";
+        if (nuevoSaldo >= 300 && nuevoSaldo <= 330) nuevoPlan = "DIAMANTE";
+        else if (nuevoSaldo >= 200) nuevoPlan = "VIP";
+        else if (nuevoSaldo >= 100 && nuevoSaldo < 120) nuevoPlan = "PREMIUM";
+        else if (nuevoSaldo >= 80) nuevoPlan = "ORO";
+        else if (nuevoSaldo >= 50) nuevoPlan = "BRONCE";
+
+        db.ref(`usuarios/${uid}/plan`).set(nuevoPlan);
+
         // Guardar notificación
         db.ref(`usuarios/${uid}/notificacionRecarga`).set({
           mensaje: `Tu saldo ha sido ${signo === '+' ? 'aumentado' : 'descontado'} en ${valor.toFixed(2)} créditos.`,
@@ -156,25 +143,31 @@
           dia: fecha.toLocaleDateString(),
           hora: fecha.toLocaleTimeString(),
           creditos: valor,
-          metodo: 'Panel Admin',
+          metodo: 'Admin Panel',
           estado: signo === '+' ? 'Recargado' : 'Descontado',
           id: uid,
         });
 
-        // 📩 Enviar correo al usuario
-        db.ref(`usuarios/${uid}/email`).once("value").then(snapshot => {
-          const emailUsuario = snapshot.val();
+        // Obtener correo del usuario
+        db.ref("usuarios/" + uid + "/email").once("value").then(snap => {
+          const emailUsuario = snap.val();
           if (emailUsuario) {
-            enviarCorreo(
-              emailUsuario,
-              uid,
-              signo === "+" ? "aumentado" : "descontado",
-              valor.toFixed(2),
-              nuevoSaldo.toFixed(2)
-            );
+            // Enviar correo con EmailJS
+            emailjs.send("service_kx5bg2c", "template_el7m8n6", {
+              to_email: emailUsuario,
+              to_name: uid,
+              logo: "https://transferenciavip.xyz/3440119_ico.png",
+              fecha: fecha.toLocaleDateString(),
+              hora: fecha.toLocaleTimeString(),
+              mensaje: `Tu saldo ha sido ${signo === '+' ? 'aumentado' : 'descontado'} en ${valor.toFixed(2)} créditos.`,
+              plan: nuevoPlan
+            }).then(() => {
+              console.log("📧 Correo enviado a:", emailUsuario);
+            }).catch(err => console.error("❌ Error al enviar email:", err));
           }
         });
 
+        // Limpiar inputs
         document.getElementById('inputUid').value = '';
         document.getElementById('inputMonto').value = '';
       })
