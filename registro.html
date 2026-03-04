@@ -149,49 +149,57 @@
 </div>
 
 <script>
-  // ---------- Helpers ----------
   const $ = (s) => document.querySelector(s);
   const showAlert = (msg) => { const b = $('#alertBox'); b.textContent = msg; b.classList.add('show'); };
   const clearAlert = () => { const b = $('#alertBox'); b.textContent = ''; b.classList.remove('show'); };
 
-  // Toggle pass
   $('#togglePass')?.addEventListener('click', () => {
-    const i = $('#regPass'); i.type = (i.type === 'password') ? 'text' : 'password';
+    const i = $('#regPass');
+    i.type = (i.type === 'password') ? 'text' : 'password';
   });
 
-  // ---------- Firebase ----------
   window.addEventListener('DOMContentLoaded', () => {
+
     const firebaseConfig = {
-      apiKey: "AIzaSyB28uLNC-7NBDBSJeQJ1Li_bYR6ygbf0DI",
-      apiKey: "AIzaSyCbL1fRbwVZRhdD88TeQSFgpvfjZOMwfIg",
-    authDomain: "multidoxnetfree.firebaseapp.com",
-    databaseURL: "https://multidoxnetfree-default-rtdb.firebaseio.com",
-    projectId: "multidoxnetfree",
-    storageBucket: "multidoxnetfree.firebasestorage.app",
-    messagingSenderId: "248995370956",
-    appId: "1:248995370956:web:455823a3778859bd4d2f69",
-    measurementId: "G-HDE68S5TYS"
-  };
+      apiKey: "AIzaSyCRI8iTbn532EKaKOTKeZDjU6jkuue6HPM",
+    authDomain: "fake-voucher-generator.firebaseapp.com",
+    databaseURL: "https://fake-voucher-generator-default-rtdb.firebaseio.com",
+    projectId: "fake-voucher-generator",
+    storageBucket: "fake-voucher-generator.firebasestorage.app",
+    messagingSenderId: "170906641361",
+    appId: "1:170906641361:web:42ed312ef036feedc336f0",
+    measurementId: "G-8XBVS1B6XT"
+    };
+
     firebase.initializeApp(firebaseConfig);
 
     const auth = firebase.auth();
     const db   = firebase.database();
 
-    // Si ya hay sesión, envía a inicio directo (evita registrarse dos veces)
     auth.onAuthStateChanged((user) => {
-      if (user) {
-        location.replace('inicio');
-      }
+      if (user) location.replace('inicio');
     });
 
-    // Verifica si username ya existe en /usuarios (campo nombre)
     async function isUsernameTaken(username){
-      const snap = await db.ref('usuarios').orderByChild('nombre').equalTo(username).limitToFirst(1).once('value');
+      const snap = await db.ref('usuarios')
+        .orderByChild('nombre')
+        .equalTo(username)
+        .limitToFirst(1)
+        .once('value');
       return snap.exists();
     }
 
-    // Guarda usuario y asigna créditos de bienvenida (5 email/contraseña, 10 Google)
+    // 🔐 REGISTRAR SOLO SI ES PRIMERA VEZ
     async function registrarUsuario({email, username, fullName, uid, isGoogle=false}){
+
+      const userRef = db.ref(`usuarios/${uid}`);
+      const snap = await userRef.once('value');
+
+      if (snap.exists()) {
+        console.log('Usuario ya existente, no se asignan créditos.');
+        return false;
+      }
+
       const fecha = new Date().toISOString().split('T')[0];
       const bonos = isGoogle ? 10 : 5;
 
@@ -203,28 +211,36 @@
         estado: 'activo',
         recargas: 0,
         comision: '10.00',
-        comisionesTotales: bonos,  // ← créditos de bienvenida
+        comisionesTotales: bonos,
         ultima: '-',
-        google: !!isGoogle
+        google: !!isGoogle,
+        bonoBienvenida: true
       };
 
-      await db.ref(`usuarios/${uid}`).set(data);
+      await userRef.set(data);
+      return true;
     }
 
-    // Redirige a login
     function goLogin(){
       try { grecaptcha.reset(); } catch(e){}
       location.assign('login.html');
     }
 
-    // ------- Registro con correo -------
     const form = $('#registerForm');
     const submitBtn = $('#submitBtn');
     const btnTxt = submitBtn.querySelector('.btn-text');
-    const setLoading = (v)=>{ submitBtn.disabled = v; btnTxt.textContent = v ? 'Creando cuenta…' : 'Registrarse'; };
 
+    const setLoading = (v)=>{
+      submitBtn.disabled = v;
+      btnTxt.textContent = v ? 'Creando cuenta…' : 'Registrarse';
+    };
+
+    // -------- REGISTRO EMAIL --------
     form.addEventListener('submit', async (e) => {
-      e.preventDefault(); clearAlert(); setLoading(true);
+      e.preventDefault();
+      clearAlert();
+      setLoading(true);
+
       try {
         const username = $('#regUsername').value.trim();
         const fullName = $('#regFullName').value.trim();
@@ -233,98 +249,77 @@
         const accepted = $('#acceptPolicy').checked;
         const recaptchaResponse = grecaptcha.getResponse();
 
-        if (!recaptchaResponse) throw new Error('Por favor verifica que no eres un robot.');
-        if (!accepted) throw new Error('Debes aceptar la política de privacidad.');
-        if (username.length < 3) throw new Error('El nombre de usuario debe tener al menos 3 caracteres.');
-        if (pass.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres.');
-
-        // Username único
-        if (await isUsernameTaken(username)) {
-          throw new Error('Ese nombre de usuario ya está en uso. Elige otro.');
-        }
+        if (!recaptchaResponse) throw new Error('Verifica el reCAPTCHA.');
+        if (!accepted) throw new Error('Debes aceptar la política.');
+        if (await isUsernameTaken(username)) throw new Error('Usuario ya en uso.');
 
         const cred = await auth.createUserWithEmailAndPassword(email, pass);
-        await registrarUsuario({ email, username, fullName, uid: cred.user.uid, isGoogle:false });
 
-        alert('Registro exitoso. Se acreditaron 5 créditos de bienvenida. Ahora puedes iniciar sesión.');
+        const esNuevo = await registrarUsuario({
+          email,
+          username,
+          fullName,
+          uid: cred.user.uid,
+          isGoogle:false
+        });
+
+        if (esNuevo) {
+          alert('Registro exitoso. Se acreditaron 5 créditos.');
+        } else {
+          alert('Cuenta ya existente. No se otorgaron créditos.');
+        }
+
         await auth.signOut();
         goLogin();
+
       } catch(err){
-        console.error('[Registro error]', err);
-        let msg = 'No se pudo completar el registro.';
-        if (err.code === 'auth/email-already-in-use') msg = 'Ese correo ya está registrado.';
-        else if (err.code === 'auth/invalid-email') msg = 'El correo no es válido.';
-        else if (err.code === 'auth/weak-password') msg = 'La contraseña es muy débil.';
-        else if (err.message) msg = err.message;
-        showAlert(msg);
+        showAlert(err.message || 'Error en el registro.');
       } finally {
         setLoading(false);
       }
     });
 
-    // ------- Registro con Google -------
+    // -------- REGISTRO GOOGLE --------
     $('#googleRegisterBtn').addEventListener('click', async () => {
-      clearAlert(); setLoading(true);
+      clearAlert();
+      setLoading(true);
+
       try {
         const provider = new firebase.auth.GoogleAuthProvider();
-        try {
-          const result = await auth.signInWithPopup(provider);
-          const user = result.user;
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
 
-          // username base
-          const base = (user.email?.split('@')[0] || 'user');
-          let username = base + Math.random().toString(36).slice(2,6);
+        const base = (user.email?.split('@')[0] || 'user');
+        let username = base + Math.random().toString(36).slice(2,6);
 
-          // evitar choque de username
-          while (await isUsernameTaken(username)) {
-            username = base + Math.random().toString(36).slice(2,6);
-          }
-
-          await registrarUsuario({
-            email: user.email || user.providerData?.[0]?.email || '',
-            username,
-            fullName: user.displayName || username,
-            uid: user.uid,
-            isGoogle: true
-          });
-
-          alert('Cuenta creada con Google. Se acreditaron 10 créditos de bienvenida. Ahora puedes iniciar sesión.');
-          await auth.signOut();
-          goLogin();
-        } catch(popupErr){
-          console.warn('[Popup error] Intento con redirect…', popupErr?.message);
-          const provider2 = new firebase.auth.GoogleAuthProvider();
-          await auth.signInWithRedirect(provider2);
+        while (await isUsernameTaken(username)) {
+          username = base + Math.random().toString(36).slice(2,6);
         }
+
+        const esNuevo = await registrarUsuario({
+          email: user.email || '',
+          username,
+          fullName: user.displayName || username,
+          uid: user.uid,
+          isGoogle: true
+        });
+
+        if (esNuevo) {
+          alert('Cuenta creada con Google. Se acreditaron 10 créditos.');
+        } else {
+          alert('Cuenta ya registrada anteriormente.');
+        }
+
+        await auth.signOut();
+        goLogin();
+
       } catch(err){
-        console.error('[Google registro error]', err);
         showAlert('Error con Google: ' + (err.message || 'Intenta de nuevo.'));
       } finally {
         setLoading(false);
       }
     });
 
-    // Completar flujo si venimos de redirect (iOS/Safari)
-    auth.getRedirectResult?.().then(async (res) => {
-      if (res && res.user) {
-        const user = res.user;
-        const base = (user.email?.split('@')[0] || 'user');
-        let username = base + Math.random().toString(36).slice(2,6);
-        while (await isUsernameTaken(username)) {
-          username = base + Math.random().toString(36).slice(2,6);
-        }
-        await registrarUsuario({
-          email: user.email || user.providerData?.[0]?.email || '',
-          username,
-          fullName: user.displayName || username,
-          uid: user.uid,
-          isGoogle: true
-        });
-        alert('Cuenta creada con Google. Se acreditaron 10 créditos de bienvenida. Ahora puedes iniciar sesión.');
-        await auth.signOut();
-        goLogin();
-      }
-    }).catch(err => console.error('[RedirectResult]', err));
   });
 </script>
 </body>

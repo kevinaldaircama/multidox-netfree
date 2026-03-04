@@ -1,110 +1,171 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formulario Yape</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #650D89;
-      color: white;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .form-container {
-      background: rgba(255,255,255,0.1);
-      padding: 20px;
-      border-radius: 15px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    .form-container h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .form-container label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    .form-container input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: none;
-      border-radius: 10px;
-      outline: none;
-      font-size: 16px;
-    }
-    .form-container button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 20px;
-      border: none;
-      border-radius: 10px;
-      background: #00d4aa;
-      color: #fff;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .form-container button:hover {
-      background: #00bfa5;
-    }
-    .mensaje {
-      text-align: center;
-      font-size: 18px;
-      margin-top: 15px;
-      display: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Generar comprobante</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="../3440119_ico.png" />
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0f2027" />
+<style>
+
+body{
+font-family:Arial;
+background:#650D89;
+margin:0;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:white;
+color:black;
+padding:25px;
+border-radius:15px;
+width:320px;
+box-shadow:0 10px 20px rgba(0,0,0,0.2);
+}
+
+h2{
+text-align:center;
+color:#650D89;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:8px;
+border:1px solid #ccc;
+font-size:15px;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:15px;
+border:none;
+background:#650D89;
+color:white;
+font-size:16px;
+border-radius:10px;
+cursor:pointer;
+}
+
+#creditos{
+margin-bottom:10px;
+font-weight:bold;
+text-align:center;
+}
+
+</style>
 </head>
 <body>
-  <div class="form-container">
-    <h2>Generar Comprobante Yape</h2>
-    <label>Nombre:</label>
-    <input type="text" id="nombre" placeholder="Ingresa tu nombre" required />
 
-    <label>Número Telefónico:</label>
-    <input type="tel" id="telefono" placeholder="Ej: 987654321" required />
+<div class="box">
 
-    <label>Monto (S/):</label>
-    <input type="number" id="monto" placeholder="Ej: 20.50" required />
+<h2>Generar comprobante</h2>
 
-    <button onclick="generarYape()">Generar Yape</button>
-    <div class="mensaje" id="mensaje"></div>
-  </div>
+<div id="creditos">Cargando créditos...</div>
 
-  <script>
-    function generarYape() {
-      const nombre = document.getElementById("nombre").value.trim();
-      const telefono = document.getElementById("telefono").value.trim();
-      const monto = document.getElementById("monto").value.trim();
-      const mensaje = document.getElementById("mensaje");
+<input id="nombre" placeholder="Nombre destino">
 
-      if (!nombre || !telefono || !monto) {
-        alert("Por favor completa todos los campos.");
-        return;
-      }
+<input id="numero" placeholder="Número celular">
 
-      mensaje.style.display = "block";
-      mensaje.textContent = "Procesando datos...";
+<input id="monto" placeholder="Monto">
 
-      setTimeout(() => {
-        mensaje.textContent = "Generando información...";
+<button onclick="generar()">Generar comprobante</button>
 
-        setTimeout(() => {
-          const url = `comprobante.html?nombre=${encodeURIComponent(nombre)}&telefono=${encodeURIComponent(telefono)}&monto=${encodeURIComponent(monto)}`;
-          window.location.href = url;
-        }, 2000);
-      }, 2000);
-    }
-  </script>
+</div>
+
+
+<!-- FIREBASE -->
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+
+// CONFIGURACIÓN
+const firebaseConfig={
+apiKey: "AIzaSyCRI8iTbn532EKaKOTKeZDjU6jkuue6HPM",
+    authDomain: "fake-voucher-generator.firebaseapp.com",
+    databaseURL: "https://fake-voucher-generator-default-rtdb.firebaseio.com",
+    projectId: "fake-voucher-generator",
+    storageBucket: "fake-voucher-generator.firebasestorage.app",
+    messagingSenderId: "170906641361",
+    appId: "1:170906641361:web:42ed312ef036feedc336f0",
+    measurementId: "G-8XBVS1B6XT"
+}
+
+firebase.initializeApp(firebaseConfig)
+
+const auth=firebase.auth()
+const db=firebase.database()
+
+let uid
+let creditos=0
+
+
+auth.onAuthStateChanged(user=>{
+
+if(!user){
+alert("Debes iniciar sesión")
+return
+}
+
+uid=user.uid
+
+db.ref(`usuarios/${uid}/comisionesTotales`).on("value",snap=>{
+
+creditos=parseFloat(snap.val())||0
+
+document.getElementById("creditos").innerText=
+"Créditos disponibles: "+creditos
+
+})
+
+})
+
+
+async function generar(){
+
+const nombre=document.getElementById("nombre").value
+const telefono=document.getElementById("numero").value
+const monto=document.getElementById("monto").value
+
+
+if(!nombre||!telefono||!monto){
+alert("Completa todos los campos")
+return
+}
+
+
+if(creditos<=0){
+alert("No tienes créditos")
+return
+}
+
+
+// descontar crédito
+const nuevosCreditos=creditos-1
+
+await db.ref(`usuarios/${uid}`).update({
+comisionesTotales:nuevosCreditos
+})
+
+
+// redirigir al comprobante
+window.location.href=
+`fake/yape.html?nombre=${encodeURIComponent(nombre)}&telefono=${telefono}&monto=${monto}`
+
+}
+
+</script>
+
 </body>
 </html>
