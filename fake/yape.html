@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Comprobante Yape</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="icon" href="../3440119_ico.png" />
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0f2027" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background-color:#650D89;
+color:#000;
+}
+
+.container{
+max-width:400px;
+margin:auto;
+padding:15px;
+background-color:#650D89;
+}
+
+.logo{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+.cerrar{
+width:35px;
+height:35px;
+background-color:rgba(255,255,255,0.2);
+border-radius:50%;
+color:white;
+font-size:20px;
+text-align:center;
+line-height:35px;
+cursor:pointer;
+}
+
+.card{
+background:white;
+border-radius:15px;
+padding:20px;
+box-shadow:0 5px 10px rgba(0,0,0,0.1);
+}
+
+.card h2{
+color:#650D89;
+font-size:18px;
+margin-bottom:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.monto{
+margin:5px 0;
+font-weight:bold;
+display:flex;
+align-items:flex-start;
+gap:5px;
+}
+
+.simbolo{
+font-size:28px;
+font-weight:bold;
+margin-top:6px;
+}
+
+#monto{
+font-size:48px;
+}
+
+.nombre{
+font-size:24px;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.datos{
+font-size:14px;
+color:#666;
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:10px;
+}
+
+.separator{
+color:#aaa;
+}
+
+.share{
+color:#00bfa5;
+font-size:13px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.seguridad-box{
+margin:20px 0;
+border-top:1px solid #ccc;
+border-bottom:1px solid #ccc;
+padding:15px 0;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+
+.seguridad-header{
+display:flex;
+align-items:center;
+gap:5px;
+}
+
+.icono-seguridad{
+width:20px;
+height:20px;
+}
+
+.label-seguridad{
+font-size:13px;
+color:gray;
+font-weight:bold;
+}
+
+.codigo{
+display:flex;
+gap:8px;
+}
+
+.caja{
+background-color:#f0f0f0;
+width:30px;
+height:30px;
+border-radius:5px;
+display:flex;
+justify-content:center;
+align-items:center;
+font-weight:bold;
+}
+
+.transaccion-title{
+font-size:13px;
+color:gray;
+font-weight:bold;
+margin:10px 0 8px 0;
+}
+
+.info{
+font-size:13px;
+color:gray;
+}
+
+.info p{
+margin:5px 0;
+display:flex;
+justify-content:space-between;
+}
+
+.info p strong,
+.info p span{
+font-weight:bold;
+color:#000;
+}
+
+.footer-img{
+width:100%;
+border-radius:15px;
+margin-top:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container" id="comprobante">
+
+<div class="logo">
+<img src="../YAPE.svg" style="height:40px;">
+<div class="cerrar" onclick="window.history.back()">×</div>
+</div>
+
+<div class="card">
+
+<h2>
+¡Yapeaste!
+<span class="share" onclick="compartir()">
+<i class="fas fa-share-alt"></i> COMPARTIR
+</span>
+</h2>
+
+<div class="monto">
+<span class="simbolo">S/</span>
+<span id="monto">0</span>
+</div>
+
+<div class="nombre" id="nombre">Nombre</div>
+
+<div class="datos">
+<span id="fecha"><i class="far fa-calendar-alt"></i> <span></span></span>
+<span class="separator">|</span>
+<span id="hora"><i class="far fa-clock"></i> <span></span></span>
+</div>
+
+<div class="seguridad-box">
+<div class="seguridad-header">
+<span class="label-seguridad">CÓDIGO DE SEGURIDAD</span>
+<img src="imagen/sello.jpg" class="icono-seguridad">
+</div>
+
+<div class="codigo" id="codigo-seguridad">
+<div class="caja">-</div>
+<div class="caja">-</div>
+<div class="caja">-</div>
+</div>
+</div>
+
+<div class="transaccion-title">
+DATOS DE LA TRANSACCIÓN
+</div>
+
+<div class="info">
+<p><strong>Nro. de celular</strong> <span id="telefono">*********</span></p>
+<p><strong>Destino</strong> <span>Yape</span></p>
+<p><strong>Nro. de operación</strong> <span id="operacion">---</span></p>
+</div>
+
+</div>
+
+<img class="footer-img" id="promo-img" src="https://roddox.es/imagen/1.jpg">
+
+</div>
+
+<script>
+
+// parámetros
+const params=new URLSearchParams(window.location.search)
+const nombre=decodeURIComponent(params.get("nombre")||"Sin nombre")
+const telefono=decodeURIComponent(params.get("telefono")||"000000000")
+const monto=decodeURIComponent(params.get("monto")||"0")
+
+document.getElementById("nombre").textContent=nombre
+
+const montoNum=parseFloat(monto)
+
+document.getElementById("monto").textContent=
+montoNum%1===0?montoNum:montoNum.toFixed(2)
+
+document.getElementById("telefono").textContent=
+`*** ***${telefono.slice(-3)}`
+
+// fecha hora
+const fechaObj=new Date()
+
+document.querySelector("#fecha span").textContent=
+fechaObj.toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'})
+
+document.querySelector("#hora span").textContent=
+fechaObj.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',hour12:true})
+
+// código seguridad
+const codigo=Math.floor(Math.random()*900+100).toString()
+
+const cajas=document.getElementById("codigo-seguridad").children
+
+for(let i=0;i<3;i++){
+cajas[i].textContent=codigo[i]
+}
+
+// confeti
+function lanzarConfeti(){
+
+confetti({
+particleCount:150,
+spread:70,
+origin:{y:0.6}
+})
+
+setTimeout(()=>{
+confetti({particleCount:100,angle:60,spread:55,origin:{x:0}})
+confetti({particleCount:100,angle:120,spread:55,origin:{x:1}})
+},300)
+
+}
+
+lanzarConfeti()
+
+// operación
+document.getElementById("operacion").textContent=
+Math.floor(10000000+Math.random()*90000000)
+
+// promociones
+const promociones=[
+"https://roddox.es/imagen/1.jpg",
+"https://roddox.es/imagen/kevin2.jpg",
+"https://roddox.es/imagen/kevin.jpg",
+"https://roddox.es/imagen/kevin2.jpg",
+"https://roddox.es/imagen/IMG-20260125-WA0045.jpg",
+"https://roddox.es/imagen/IMG-20260118-WA0031.jpg"
+]
+
+document.getElementById("promo-img").src=
+promociones[Math.floor(Math.random()*promociones.length)]
+
+// compartir
+async function compartir(){
+
+const comprobante=document.getElementById("comprobante")
+
+try{
+
+const canvas=await html2canvas(comprobante,{
+scale:2,
+useCORS:true
+})
+
+const blob=await new Promise(resolve=>
+canvas.toBlob(resolve,"image/png")
+)
+
+const file=new File([blob],"comprobante.png",{type:"image/png"})
+
+if(navigator.canShare&&navigator.canShare({files:[file]})){
+
+await navigator.share({
+title:"Comprobante Yape",
+text:"Te comparto el comprobante.",
+files:[file]
+})
+
+}else{
+
+const link=document.createElement("a")
+link.href=canvas.toDataURL("image/png")
+link.download="comprobante.png"
+link.click()
+
+}
+
+}catch(error){
+
+alert("Error al generar imagen")
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
