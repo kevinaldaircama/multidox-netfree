@@ -1,278 +1,272 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulario y Constancia - Plin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario y Constancia - Plin</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Fuente principal -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-<style>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #111;
+    }
 
-body{
-font-family:'Poppins',sans-serif;
-background:#f4f4f4;
-margin:0;
-padding:0;
-color:#111;
-}
+    .container {
+      max-width: 420px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 25px;
+    }
 
-.container{
-max-width:420px;
-margin:40px auto;
-background:#fff;
-border-radius:14px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
-padding:25px;
-}
+    h2 {
+      text-align: center;
+      color: #00B14F;
+      margin-bottom: 20px;
+    }
 
-h2{
-text-align:center;
-color:#00B14F;
-margin-bottom:10px;
-}
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
 
-#creditos{
-text-align:center;
-font-weight:600;
-margin-bottom:5px;
-}
+    label {
+      font-weight: 500;
+    }
 
-#nota{
-text-align:center;
-font-size:13px;
-color:#666;
-margin-bottom:15px;
-}
+    input, select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
 
-form{
-display:flex;
-flex-direction:column;
-gap:15px;
-}
+    button {
+      background-color: #00B14F;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
 
-label{
-font-weight:500;
-}
+    button:hover {
+      background-color: #009344;
+    }
 
-input,select{
-padding:10px;
-border-radius:8px;
-border:1px solid #ccc;
-font-size:1rem;
-}
+    /* ---- Comprobante oculto ---- */
+    #comprobante {
+      display: none;
+      text-align: center;
+      margin-top: 30px;
+    }
 
-button{
-background:#00B14F;
-color:white;
-border:none;
-border-radius:8px;
-padding:12px;
-font-size:1rem;
-font-weight:500;
-cursor:pointer;
-}
+    .header {
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 20px;
+    }
 
-button:hover{
-background:#009344;
-}
+    .logo {
+      width: 70px;
+      margin: 10px auto 5px;
+    }
 
-#comprobante{
-display:none;
-text-align:center;
-margin-top:30px;
-}
+    .success {
+      color: #00B14F;
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 10px 0 0;
+    }
 
-.header{
-font-size:1.2rem;
-font-weight:600;
-padding:10px 0;
-border-bottom:1px solid #eee;
-margin-bottom:20px;
-}
+    .amount {
+      font-size: 2.2rem;
+      color: #00B14F;
+      font-weight: 600;
+      margin: 10px 0 25px;
+    }
 
-.logo{
-width:70px;
-margin:10px auto 5px;
-}
+    .details {
+      text-align: left;
+      background: #fafafa;
+      border-radius: 16px;
+      padding: 18px 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+      font-size: 0.95rem;
+    }
 
-.success{
-color:#00B14F;
-font-size:1rem;
-font-weight:500;
-margin:10px 0 0;
-}
+    .details p {
+      margin: 10px 0;
+    }
 
-.amount{
-font-size:2.2rem;
-color:#00B14F;
-font-weight:600;
-margin:10px 0 25px;
-}
+    .label {
+      font-weight: 600;
+      color: #333;
+    }
 
-.details{
-text-align:left;
-background:#fafafa;
-border-radius:16px;
-padding:18px 22px;
-box-shadow:0 1px 4px rgba(0,0,0,0.05);
-margin-bottom:25px;
-font-size:0.95rem;
-}
+    .green-badge {
+      display: inline-block;
+      background-color: #00B14F;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
 
-.details p{
-margin:10px 0;
-}
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
 
-.label{
-font-weight:600;
-color:#333;
-}
+    .primary {
+      background-color: #00B14F;
+      color: white;
+      box-shadow: 0 2px 6px rgba(0,177,79,0.25);
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-.green-badge{
-display:inline-block;
-background:#00B14F;
-color:#fff;
-font-size:0.75rem;
-font-weight:600;
-border-radius:6px;
-padding:2px 8px;
-}
+    .secondary {
+      background-color: transparent;
+      color: #00B14F;
+      border: 2px solid #00B14F;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
 
-.buttons{
-display:flex;
-flex-direction:column;
-gap:12px;
-margin-top:10px;
-}
+    .footer {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px solid #e5e5e5;
+      padding: 12px 0 6px;
+      margin-top: 25px;
+      font-size: 0.8rem;
+      color: #666;
+    }
 
-.primary{
-background:#00B14F;
-color:white;
-border:none;
-border-radius:8px;
-padding:14px;
-font-size:1rem;
-cursor:pointer;
-}
+    .footer div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
 
-.secondary{
-background:transparent;
-color:#00B14F;
-border:2px solid #00B14F;
-border-radius:8px;
-padding:14px;
-font-size:1rem;
-cursor:pointer;
-}
-
-.footer{
-display:flex;
-justify-content:space-around;
-align-items:center;
-border-top:1px solid #e5e5e5;
-padding:12px 0 6px;
-margin-top:25px;
-font-size:0.8rem;
-color:#666;
-}
-
-.footer div{
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:3px;
-}
-
-.footer i{
-font-size:1.3rem;
-color:#00B14F;
-}
-
-</style>
+    .footer i {
+      font-size: 1.3rem;
+      color: #00B14F;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container" id="formulario">
-
-<h2>Generar Constancia</h2>
-
-<div id="creditos">Cargando créditos...</div>
-<div id="nota">⚠ Generar una constancia descuenta <b>2 créditos</b>.</div>
-
-<form id="pagoForm">
-
-<label>Nombre del destinatario:</label>
-<input type="text" id="nombre" required>
-
-<label>Número telefónico:</label>
-<input type="tel" id="numero" required pattern="[0-9]{9}" maxlength="9">
-
-<label>Destino:</label>
-<select id="destino" required>
-<option value="" disabled selected>Selecciona destino</option>
-<option value="Yape">Yape</option>
-<option value="Plin">Plin</option>
-<option value="BCP">BCP</option>
-<option value="Interbank">Interbank</option>
-</select>
-
-<label>Monto (S/):</label>
-<input type="number" id="monto" required min="1" step="0.01">
-
-<button type="submit">Generar constancia</button>
-
-</form>
+  <!-- Formulario -->
+  <div class="container" id="formulario">
+    <h2>Generar Constancia</h2>
+    <!-- AGREGAR DEBAJO DEL TITULO -->
+<div id="creditos" style="text-align:center;font-weight:600;margin-bottom:10px;">
+Cargando créditos...
 </div>
 
-<div class="container" id="comprobante">
-
-<div class="header">Constancia</div>
-
-<div class="success">¡Pago exitoso!</div>
-
-<div class="amount" id="montoTexto">S/ 0.00</div>
-
-<div class="details">
-
-<p><span class="label">Enviado a:</span><br>
-<span id="nombreTexto"></span><br>
-<span id="numeroTexto"></span></p>
-
-<p><span class="label">Destino:</span> <span id="destinoTexto"></span></p>
-
-<p><span class="label">Comisión:</span> <span class="green-badge">GRATIS</span></p>
-
-<p><span class="label">Fecha y hora:</span> <span id="fechaHora"></span></p>
-
-<p><span class="label">Código de operación:</span> <span id="codigoOperacion"></span></p>
-
+<div style="text-align:center;font-size:13px;color:#666;margin-bottom:15px;">
+⚠ Generar una constancia descuenta <b>2 créditos</b>.
 </div>
+    <form id="pagoForm">
+      <label>Nombre del destinatario:</label>
+      <input type="text" id="nombre" required>
 
-<div class="buttons">
-<button class="primary"><i class="fa-solid fa-paper-plane"></i> Enviar constancia</button>
-<button class="secondary" onclick="volver()">Volver</button>
-</div>
+      <label>Número telefónico:</label>
+      <input type="tel" id="numero" required pattern="[0-9]{9}" maxlength="9">
 
-</div>
+      <label>Destino:</label>
+      <select id="destino" required>
+        <option value="" disabled selected>Selecciona destino</option>
+        <option value="Yape">Yape</option>
+        <option value="Plin">Plin</option>
+        <option value="BCP">BCP</option>
+        <option value="Interbank">Interbank</option>
+      </select>
 
+      <label>Monto (S/):</label>
+      <input type="number" id="monto" required min="1" step="0.01">
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+      <button type="submit">Generar constancia</button>
+    </form>
+  </div>
+
+  <!-- Comprobante -->
+  <div class="container" id="comprobante">
+    <div class="header">Constancia</div>
+
+    <img src="data:image/jpeg;base64,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" alt="Plin" class="logo">
+
+    <div class="success">¡Pago exitoso!</div>
+    <div class="amount" id="montoTexto">S/ 0.00</div>
+
+    <div class="details">
+      <p><span class="label">Enviado a:</span><br><span id="nombreTexto"></span><br><span id="numeroTexto"></span></p>
+      <p><span class="label">Destino:</span> <span id="destinoTexto"></span></p>
+      <p><span class="label">Comisión:</span> <span class="green-badge">GRATIS</span></p>
+      <p><span class="label">Fecha y hora:</span> <span id="fechaHora"></span></p>
+      <p><span class="label">Código de operación:</span> <span id="codigoOperacion"></span></p>
+    </div>
+
+    <div class="buttons">
+      <button class="primary"><i class="fa-solid fa-paper-plane"></i> Enviar constancia</button>
+      <button class="secondary" onclick="volver()">Volver</button>
+    </div>
+
+    <div class="footer">
+      <div><i class="fa-solid fa-house"></i><span>Inicio</span></div>
+      <div><i class="fa-solid fa-right-left"></i><span>Operaciones</span></div>
+      <div><i class="fa-solid fa-qrcode"></i><span>QR</span></div>
+      <div><i class="fa-solid fa-gift"></i><span>Beneficios</span></div>
+      <div><i class="fa-solid fa-user"></i><span>Para ti</span></div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
 
 const firebaseConfig={
-apiKey:"AIzaSyCRI8iTbn532EKaKOTKeZDjU6jkuue6HPM",
-authDomain:"fake-voucher-generator.firebaseapp.com",
-databaseURL:"https://fake-voucher-generator-default-rtdb.firebaseio.com",
-projectId:"fake-voucher-generator",
-storageBucket:"fake-voucher-generator.firebasestorage.app",
-messagingSenderId:"170906641361",
-appId:"1:170906641361:web:42ed312ef036feedc336f0"
+apiKey: "AIzaSyCRI8iTbn532EKaKOTKeZDjU6jkuue6HPM",
+authDomain: "fake-voucher-generator.firebaseapp.com",
+databaseURL: "https://fake-voucher-generator-default-rtdb.firebaseio.com",
+projectId: "fake-voucher-generator",
+storageBucket: "fake-voucher-generator.firebasestorage.app",
+messagingSenderId: "170906641361",
+appId: "1:170906641361:web:42ed312ef036feedc336f0",
+measurementId: "G-8XBVS1B6XT"
 }
 
 firebase.initializeApp(firebaseConfig)
@@ -284,6 +278,7 @@ let uid
 let creditos=0
 
 
+// VERIFICAR SESIÓN
 auth.onAuthStateChanged(user=>{
 
 if(!user){
@@ -299,81 +294,93 @@ db.ref(`usuarios/${uid}/comisionesTotales`).on("value",snap=>{
 
 creditos=parseFloat(snap.val())||0
 
-document.getElementById("creditos").innerText="Créditos disponibles: "+creditos
+document.getElementById("creditos").innerText=
+"Créditos disponibles: "+creditos
 
 })
 
 })
 
 
-const form=document.getElementById('pagoForm')
-const comprobante=document.getElementById('comprobante')
-const formulario=document.getElementById('formulario')
 
-form.addEventListener('submit',async(e)=>{
+const form = document.getElementById('pagoForm');
+const comprobante = document.getElementById('comprobante');
+const formulario = document.getElementById('formulario');
 
-e.preventDefault()
+form.addEventListener('submit', async (e) => {
 
-if(creditos<2){
+e.preventDefault();
+
+if(creditos < 2){
 
 alert("No tienes suficientes créditos")
 return
 
 }
 
-const nuevosCreditos=creditos-2
+
+// DESCONTAR 2 CREDITOS
+const nuevosCreditos = creditos - 2
 
 await db.ref(`usuarios/${uid}`).update({
 comisionesTotales:nuevosCreditos
 })
 
 
-const nombre=document.getElementById('nombre').value
-const numero=document.getElementById('numero').value
-const destino=document.getElementById('destino').value
-const monto=parseFloat(document.getElementById('monto').value).toFixed(2)
+// Captura datos
+const nombre = document.getElementById('nombre').value;
+const numero = document.getElementById('numero').value;
+const destino = document.getElementById('destino').value;
+const monto = parseFloat(document.getElementById('monto').value).toFixed(2);
 
 
-document.getElementById('nombreTexto').textContent=nombre
-document.getElementById('numeroTexto').textContent=numero
-document.getElementById('destinoTexto').textContent=destino
-document.getElementById('montoTexto').textContent=`S/ ${monto}`
+// Mostrar datos
+document.getElementById('nombreTexto').textContent = nombre;
+document.getElementById('numeroTexto').textContent = numero;
+document.getElementById('destinoTexto').textContent = destino;
+document.getElementById('montoTexto').textContent = `S/ ${monto}`;
 
 
-const ahora=new Date()
+// Fecha
+const ahora = new Date();
+const opciones = { day: '2-digit', month: 'short', year: 'numeric' };
 
-const fecha=ahora.toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'}).replace('.','')
+const fecha = ahora.toLocaleDateString('es-PE', opciones).replace('.', '');
 
-let horas=ahora.getHours()
-const minutos=ahora.getMinutes().toString().padStart(2,'0')
-const ampm=horas>=12?'PM':'AM'
+let horas = ahora.getHours();
+const minutos = ahora.getMinutes().toString().padStart(2, '0');
 
-horas=horas%12||12
+const ampm = horas >= 12 ? 'PM' : 'AM';
 
-document.getElementById('fechaHora').textContent=`${fecha} - ${horas}:${minutos} ${ampm}`
+horas = horas % 12 || 12;
 
+const horaFormateada = `${horas}:${minutos} ${ampm}`;
 
-const codigo=Math.floor(10000000+Math.random()*90000000)
-
-document.getElementById('codigoOperacion').textContent=codigo
+document.getElementById('fechaHora').textContent = `${fecha} - ${horaFormateada}`;
 
 
-formulario.style.display="none"
-comprobante.style.display="block"
 
-})
+// Código operación
+const codigo = Math.floor(10000000 + Math.random() * 90000000);
+
+document.getElementById('codigoOperacion').textContent = codigo;
+
+
+// Mostrar comprobante
+formulario.style.display = 'none';
+comprobante.style.display = 'block';
+
+});
 
 
 function volver(){
 
-comprobante.style.display="none"
-formulario.style.display="block"
-
-form.reset()
+comprobante.style.display = 'none';
+formulario.style.display = 'block';
+form.reset();
 
 }
 
 </script>
-
 </body>
-  </html>
+</html>
