@@ -91,74 +91,109 @@
 
   // Recargar créditos
   function recargarCreditos() {
-    const uid = document.getElementById('inputUid').value.trim();
-    const emailUsuario = document.getElementById('inputEmail').value.trim();
-    const input = document.getElementById('inputMonto').value.trim();
-    const signo = input.charAt(0);
-    const valor = parseFloat(input.substring(1));
 
-    if (!uid || !emailUsuario || (signo !== '+' && signo !== '-') || isNaN(valor) || valor <= 0) {
-      alert('Ingrese UID, correo válido y monto con signo + o - al inicio.');
-      return;
-    }
+  const uid = document.getElementById('inputUid').value.trim();
+  const emailUsuario = document.getElementById('inputEmail').value.trim();
+  const input = document.getElementById('inputMonto').value.trim();
 
-    const creditosRef = db.ref(`usuarios/${uid}/comisionesTotales`);
-    const historialRef = db.ref(`usuarios/${uid}/historialRecargas`);
+  const signo = input.charAt(0);
+  const valor = parseFloat(input.substring(1));
 
-    creditosRef.once('value')
-      .then(snapshot => {
-        const saldoActual = parseFloat(snapshot.val()) || 0;
-        const nuevoSaldo = signo === '+' ? saldoActual + valor : Math.max(0, saldoActual - valor);
-        return creditosRef.set(nuevoSaldo).then(() => nuevoSaldo);
-      })
-      .then(nuevoSaldo => {
-        alert('Operación exitosa.');
-
-        // Actualizar plan
-        let nuevoPlan = "FREE";
-        if (nuevoSaldo >= 300 && nuevoSaldo <= 330) nuevoPlan = "DIAMANTE";
-        else if (nuevoSaldo >= 200) nuevoPlan = "VIP";
-        else if (nuevoSaldo >= 100 && nuevoSaldo < 120) nuevoPlan = "PREMIUM";
-        else if (nuevoSaldo >= 80) nuevoPlan = "ORO";
-        else if (nuevoSaldo >= 50) nuevoPlan = "BRONCE";
-
-        db.ref(`usuarios/${uid}/plan`).set(nuevoPlan);
-
-        const fecha = new Date();
-
-        // Enviar correo con EmailJS
-        emailjs.send("service_kx5bg2c", "template_el7m8n6", {
-          to_email: emailUsuario,
-          to_name: uid,
-          logo: "https://transferenciavip.xyz/3440119_ico.png",
-          fecha: fecha.toLocaleDateString(),
-          hora: fecha.toLocaleTimeString(),
-          mensaje: `Tu saldo ha sido ${signo === '+' ? 'aumentado' : 'descontado'} en ${valor.toFixed(2)} créditos.`,
-          plan: nuevoPlan
-        }).then(() => {
-          console.log("📧 Correo enviado a:", emailUsuario);
-        }).catch(err => console.error("❌ Error al enviar email:", err));
-
-        // Guardar en historial
-        historialRef.push({
-          dia: fecha.toLocaleDateString(),
-          hora: fecha.toLocaleTimeString(),
-          creditos: valor,
-          metodo: 'Admin Panel',
-          estado: signo === '+' ? 'Recargado' : 'Descontado',
-          id: uid,
-        });
-
-        // Limpiar inputs
-        document.getElementById('inputUid').value = '';
-        document.getElementById('inputEmail').value = '';
-        document.getElementById('inputMonto').value = '';
-      })
-      .catch(error => {
-        console.error('Error durante la operación de saldo:', error);
-        alert('Error al procesar la operación.');
-      });
+  if (!uid || !emailUsuario || (signo !== '+' && signo !== '-') || isNaN(valor) || valor <= 0) {
+    alert('Ingrese UID, correo válido y monto con signo + o - al inicio.');
+    return;
   }
+
+  const creditosRef = db.ref(`usuarios/${uid}/comisionesTotales`);
+  const historialRef = db.ref(`usuarios/${uid}/historialRecargas`);
+  const recargasRef = db.ref(`usuarios/${uid}/recargas`);
+
+  // aumentar contador de recargas
+  recargasRef.once('value').then(snap => {
+    const actual = snap.val() || 0;
+    recargasRef.set(actual + 1);
+  });
+
+  creditosRef.once('value')
+  .then(snapshot => {
+
+    const saldoActual = parseFloat(snapshot.val()) || 0;
+    const nuevoSaldo = signo === '+'
+      ? saldoActual + valor
+      : Math.max(0, saldoActual - valor);
+
+    return creditosRef.set(nuevoSaldo).then(() => {
+
+      // crear notificación
+      db.ref(`usuarios/${uid}/notificacionRecarga`).set({
+        mensaje: `Se ${signo === '+' ? 'acreditaron' : 'descontaron'} ${valor} créditos a tu cuenta`,
+        leido: false,
+        fecha: new Date().toLocaleString()
+      });
+
+      return nuevoSaldo;
+
+    });
+
+  })
+  .then(nuevoSaldo => {
+
+    alert('Operación exitosa.');
+
+    // calcular plan
+    let nuevoPlan = "FREE";
+
+    if (nuevoSaldo >= 300) nuevoPlan = "DIAMANTE";
+    else if (nuevoSaldo >= 200) nuevoPlan = "VIP";
+    else if (nuevoSaldo >= 100) nuevoPlan = "PREMIUM";
+    else if (nuevoSaldo >= 80) nuevoPlan = "ORO";
+    else if (nuevoSaldo >= 50) nuevoPlan = "BRONCE";
+
+    db.ref(`usuarios/${uid}/plan`).set(nuevoPlan);
+
+    const fecha = new Date();
+
+    // enviar correo
+    emailjs.send("service_kx5bg2c", "template_el7m8n6", {
+      to_email: emailUsuario,
+      to_name: uid,
+      logo: "https://transferenciavip.xyz/3440119_ico.png",
+      fecha: fecha.toLocaleDateString(),
+      hora: fecha.toLocaleTimeString(),
+      mensaje: `Tu saldo ha sido ${signo === '+' ? 'aumentado' : 'descontado'} en ${valor.toFixed(2)} créditos.`,
+      plan: nuevoPlan
+    })
+    .then(() => {
+      console.log("Correo enviado a:", emailUsuario);
+    })
+    .catch(err => {
+      console.error("Error al enviar email:", err);
+    });
+
+    // guardar historial
+    historialRef.push({
+      dia: fecha.toLocaleDateString(),
+      hora: fecha.toLocaleTimeString(),
+      creditos: valor,
+      metodo: 'Admin Panel',
+      estado: signo === '+' ? 'Recargado' : 'Descontado',
+      id: uid
+    });
+
+    // limpiar inputs
+    document.getElementById('inputUid').value = '';
+    document.getElementById('inputEmail').value = '';
+    document.getElementById('inputMonto').value = '';
+
+  })
+  .catch(error => {
+
+    console.error('Error durante la operación de saldo:', error);
+    alert('Error al procesar la operación.');
+
+  });
+
+}
 </script>
 </body>
 </html>
