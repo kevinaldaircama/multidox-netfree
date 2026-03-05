@@ -175,7 +175,25 @@
 
     const auth = firebase.auth();
     const db   = firebase.database();
+    
+// BLOQUEAR CORREOS TEMPORALES
+const dominiosBloqueados = [
+"tempmail.com",
+"10minutemail.com",
+"guerrillamail.com",
+"mailinator.com",
+"trashmail.com",
+"yopmail.com",
+"dispostable.com",
+"fakeinbox.com",
+"maildrop.cc",
+"sharklasers.com"
+];
 
+function correoTemporal(email){
+const dominio = email.split("@")[1];
+return dominiosBloqueados.includes(dominio);
+}
     auth.onAuthStateChanged((user) => {
       if (user) location.replace('inicio');
     });
@@ -192,34 +210,34 @@
     // 🔐 REGISTRAR SOLO SI ES PRIMERA VEZ
     async function registrarUsuario({email, username, fullName, uid, isGoogle=false}){
 
-      const userRef = db.ref(`usuarios/${uid}`);
-      const snap = await userRef.once('value');
+const userRef = db.ref(`usuarios/${uid}`);
+const snap = await userRef.once('value');
 
-      if (snap.exists()) {
-        console.log('Usuario ya existente, no se asignan créditos.');
-        return false;
-      }
+if (snap.exists()) {
+console.log('Usuario ya existente, no se asignan créditos.');
+return false;
+}
 
-      const fecha = new Date().toISOString().split('T')[0];
-      const bonos = isGoogle ? 10 : 5;
+const fecha = new Date().toISOString().split('T')[0];
+const bonos = 10;
 
-      const data = {
-        correo: email,
-        nombre: username,
-        nombreCompleto: fullName,
-        fecha,
-        estado: 'activo',
-        recargas: 0,
-        comision: '10.00',
-        comisionesTotales: bonos,
-        ultima: '-',
-        google: !!isGoogle,
-        bonoBienvenida: true
-      };
+const data = {
+correo: email,
+nombre: username,
+nombreCompleto: fullName,
+fecha,
+estado: 'activo',
+recargas: 0,
+comision: '10.00',
+comisionesTotales: bonos,
+ultima: '-',
+google: !!isGoogle,
+bonoBienvenida: true
+};
 
-      await userRef.set(data);
-      return true;
-    }
+await userRef.set(data);
+return true;
+}
 
     function goLogin(){
       try { grecaptcha.reset(); } catch(e){}
@@ -245,6 +263,9 @@
         const username = $('#regUsername').value.trim();
         const fullName = $('#regFullName').value.trim();
         const email    = $('#regEmail').value.trim().toLowerCase();
+        if(correoTemporal(email)){
+throw new Error("No se permiten correos temporales.");
+}
         const pass     = $('#regPass').value;
         const accepted = $('#acceptPolicy').checked;
         const recaptchaResponse = grecaptcha.getResponse();
@@ -264,7 +285,7 @@
         });
 
         if (esNuevo) {
-          alert('Registro exitoso. Se acreditaron 5 créditos.');
+          alert('Registro exitoso. Se acreditaron 10 créditos.');
         } else {
           alert('Cuenta ya existente. No se otorgaron créditos.');
         }
