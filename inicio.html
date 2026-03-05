@@ -360,12 +360,25 @@
         }        
       });        
         
-      // ✅ SALDO ACTUAL        
-      db.ref(`usuarios/${uid}/comisionesTotales`).on('value', snapshot => {        
-        const creditos = parseFloat(snapshot.val()) || 0;        
-        document.getElementById('saldoUsuario').innerHTML =        
-          `$${creditos.toFixed(2)} <span class="text-muted">saldo actual a la fecha</span>`;        
-      });        
+      db.ref("usuarios/" + uid).on("value", snapshot => {
+
+  const data = snapshot.val();
+
+  if (!data) return;
+
+  const creditos = parseFloat(data.comisionesTotales || 0);
+  const recargas = data.recargas || 0;
+
+  document.getElementById("saldoUsuario").innerHTML =
+    "$" + creditos.toFixed(2) +
+    ' <span class="text-muted">saldo actual a la fecha</span>';
+
+  document.getElementById("numRecargas").innerText = recargas;
+
+  const porcentaje = Math.min(recargas * 10, 100);
+  document.getElementById("recargasProgress").style.width = porcentaje + "%";
+
+});
         db.ref(`usuarios/${uid}/recargas`).on('value', snapshot => {
   const recargas = snapshot.val() || 0;
 
