@@ -267,7 +267,7 @@
       </div>              
       <div class="col-md-6 queries-box">  
   <h5>Número de Recargas</h5>  
-  <p id="numRecargas">0 <a href="recargas" class="text-white" id="verHistorial">ver historial</a></p>  
+  <p id="numRecargas">0 <a href="recagas" class="text-white" id="verHistorial">ver historial</a></p>  
   <div class="progress">  
     <div class="progress-bar bg-danger" id="recargasProgress" style="width:0%"></div>  
   </div>  
@@ -366,17 +366,25 @@
         document.getElementById('saldoUsuario').innerHTML =        
           `$${creditos.toFixed(2)} <span class="text-muted">saldo actual a la fecha</span>`;        
       });        
-        
+        db.ref(`usuarios/${uid}/recargas`).on('value', snapshot => {
+  const recargas = snapshot.val() || 0;
+
+  document.getElementById('numRecargas').innerText = recargas;
+
+  const porcentaje = Math.min(recargas * 10, 100);
+  document.getElementById('recargasProgress').style.width = porcentaje + "%";
+});
       // ✅ NOTIFICACIÓN        
-      db.ref(`usuarios/${uid}/notificacionRecarga`).once('value').then(snapshot => {        
-        const data = snapshot.val();        
-        if (data && !data.leido) {        
-          document.getElementById('contenidoNotificacion').innerText = data.mensaje;        
-          const modal = new bootstrap.Modal(document.getElementById('modalNotificacion'));        
-          modal.show();        
-          document.getElementById('modalNotificacion').addEventListener('hidden.bs.modal', () => {        
-            db.ref(`usuarios/${uid}/notificacionRecarga/leido`).set(true);        
-          });        
+      db.ref(`usuarios/${uid}/notificacionRecarga`).on('value', snapshot => {
+  const data = snapshot.val();
+
+  if (data && !data.leido) {
+    document.getElementById('contenidoNotificacion').innerText = data.mensaje;
+
+    const modal = new bootstrap.Modal(document.getElementById('modalNotificacion'));
+    modal.show();
+
+    db.ref(`usuarios/${uid}/notificacionRecarga/leido`).set(true);      
         }        
       });        
         
@@ -400,7 +408,7 @@
         });        
       }, 100);        
     } else {        
-      window.location.href = "index.html";        
+      window.location.href = "/";        
     }        
   });        
               
