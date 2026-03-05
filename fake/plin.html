@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulario y Constancia - Plin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<style>
+
+body{
+font-family:'Poppins',sans-serif;
+background:#f4f4f4;
+margin:0;
+padding:0;
+color:#111;
+}
+
+.container{
+max-width:420px;
+margin:40px auto;
+background:#fff;
+border-radius:14px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+padding:25px;
+}
+
+h2{
+text-align:center;
+color:#00B14F;
+margin-bottom:10px;
+}
+
+#creditos{
+text-align:center;
+font-weight:600;
+margin-bottom:5px;
+}
+
+#nota{
+text-align:center;
+font-size:13px;
+color:#666;
+margin-bottom:15px;
+}
+
+form{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+label{
+font-weight:500;
+}
+
+input,select{
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+font-size:1rem;
+}
+
+button{
+background:#00B14F;
+color:white;
+border:none;
+border-radius:8px;
+padding:12px;
+font-size:1rem;
+font-weight:500;
+cursor:pointer;
+}
+
+button:hover{
+background:#009344;
+}
+
+#comprobante{
+display:none;
+text-align:center;
+margin-top:30px;
+}
+
+.header{
+font-size:1.2rem;
+font-weight:600;
+padding:10px 0;
+border-bottom:1px solid #eee;
+margin-bottom:20px;
+}
+
+.logo{
+width:70px;
+margin:10px auto 5px;
+}
+
+.success{
+color:#00B14F;
+font-size:1rem;
+font-weight:500;
+margin:10px 0 0;
+}
+
+.amount{
+font-size:2.2rem;
+color:#00B14F;
+font-weight:600;
+margin:10px 0 25px;
+}
+
+.details{
+text-align:left;
+background:#fafafa;
+border-radius:16px;
+padding:18px 22px;
+box-shadow:0 1px 4px rgba(0,0,0,0.05);
+margin-bottom:25px;
+font-size:0.95rem;
+}
+
+.details p{
+margin:10px 0;
+}
+
+.label{
+font-weight:600;
+color:#333;
+}
+
+.green-badge{
+display:inline-block;
+background:#00B14F;
+color:#fff;
+font-size:0.75rem;
+font-weight:600;
+border-radius:6px;
+padding:2px 8px;
+}
+
+.buttons{
+display:flex;
+flex-direction:column;
+gap:12px;
+margin-top:10px;
+}
+
+.primary{
+background:#00B14F;
+color:white;
+border:none;
+border-radius:8px;
+padding:14px;
+font-size:1rem;
+cursor:pointer;
+}
+
+.secondary{
+background:transparent;
+color:#00B14F;
+border:2px solid #00B14F;
+border-radius:8px;
+padding:14px;
+font-size:1rem;
+cursor:pointer;
+}
+
+.footer{
+display:flex;
+justify-content:space-around;
+align-items:center;
+border-top:1px solid #e5e5e5;
+padding:12px 0 6px;
+margin-top:25px;
+font-size:0.8rem;
+color:#666;
+}
+
+.footer div{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:3px;
+}
+
+.footer i{
+font-size:1.3rem;
+color:#00B14F;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container" id="formulario">
+
+<h2>Generar Constancia</h2>
+
+<div id="creditos">Cargando créditos...</div>
+<div id="nota">⚠ Generar una constancia descuenta <b>2 créditos</b>.</div>
+
+<form id="pagoForm">
+
+<label>Nombre del destinatario:</label>
+<input type="text" id="nombre" required>
+
+<label>Número telefónico:</label>
+<input type="tel" id="numero" required pattern="[0-9]{9}" maxlength="9">
+
+<label>Destino:</label>
+<select id="destino" required>
+<option value="" disabled selected>Selecciona destino</option>
+<option value="Yape">Yape</option>
+<option value="Plin">Plin</option>
+<option value="BCP">BCP</option>
+<option value="Interbank">Interbank</option>
+</select>
+
+<label>Monto (S/):</label>
+<input type="number" id="monto" required min="1" step="0.01">
+
+<button type="submit">Generar constancia</button>
+
+</form>
+</div>
+
+<div class="container" id="comprobante">
+
+<div class="header">Constancia</div>
+
+<div class="success">¡Pago exitoso!</div>
+
+<div class="amount" id="montoTexto">S/ 0.00</div>
+
+<div class="details">
+
+<p><span class="label">Enviado a:</span><br>
+<span id="nombreTexto"></span><br>
+<span id="numeroTexto"></span></p>
+
+<p><span class="label">Destino:</span> <span id="destinoTexto"></span></p>
+
+<p><span class="label">Comisión:</span> <span class="green-badge">GRATIS</span></p>
+
+<p><span class="label">Fecha y hora:</span> <span id="fechaHora"></span></p>
+
+<p><span class="label">Código de operación:</span> <span id="codigoOperacion"></span></p>
+
+</div>
+
+<div class="buttons">
+<button class="primary"><i class="fa-solid fa-paper-plane"></i> Enviar constancia</button>
+<button class="secondary" onclick="volver()">Volver</button>
+</div>
+
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+
+const firebaseConfig={
+apiKey:"AIzaSyCRI8iTbn532EKaKOTKeZDjU6jkuue6HPM",
+authDomain:"fake-voucher-generator.firebaseapp.com",
+databaseURL:"https://fake-voucher-generator-default-rtdb.firebaseio.com",
+projectId:"fake-voucher-generator",
+storageBucket:"fake-voucher-generator.firebasestorage.app",
+messagingSenderId:"170906641361",
+appId:"1:170906641361:web:42ed312ef036feedc336f0"
+}
+
+firebase.initializeApp(firebaseConfig)
+
+const auth=firebase.auth()
+const db=firebase.database()
+
+let uid
+let creditos=0
+
+
+auth.onAuthStateChanged(user=>{
+
+if(!user){
+
+window.location.href="../login.html"
+return
+
+}
+
+uid=user.uid
+
+db.ref(`usuarios/${uid}/comisionesTotales`).on("value",snap=>{
+
+creditos=parseFloat(snap.val())||0
+
+document.getElementById("creditos").innerText="Créditos disponibles: "+creditos
+
+})
+
+})
+
+
+const form=document.getElementById('pagoForm')
+const comprobante=document.getElementById('comprobante')
+const formulario=document.getElementById('formulario')
+
+form.addEventListener('submit',async(e)=>{
+
+e.preventDefault()
+
+if(creditos<2){
+
+alert("No tienes suficientes créditos")
+return
+
+}
+
+const nuevosCreditos=creditos-2
+
+await db.ref(`usuarios/${uid}`).update({
+comisionesTotales:nuevosCreditos
+})
+
+
+const nombre=document.getElementById('nombre').value
+const numero=document.getElementById('numero').value
+const destino=document.getElementById('destino').value
+const monto=parseFloat(document.getElementById('monto').value).toFixed(2)
+
+
+document.getElementById('nombreTexto').textContent=nombre
+document.getElementById('numeroTexto').textContent=numero
+document.getElementById('destinoTexto').textContent=destino
+document.getElementById('montoTexto').textContent=`S/ ${monto}`
+
+
+const ahora=new Date()
+
+const fecha=ahora.toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'}).replace('.','')
+
+let horas=ahora.getHours()
+const minutos=ahora.getMinutes().toString().padStart(2,'0')
+const ampm=horas>=12?'PM':'AM'
+
+horas=horas%12||12
+
+document.getElementById('fechaHora').textContent=`${fecha} - ${horas}:${minutos} ${ampm}`
+
+
+const codigo=Math.floor(10000000+Math.random()*90000000)
+
+document.getElementById('codigoOperacion').textContent=codigo
+
+
+formulario.style.display="none"
+comprobante.style.display="block"
+
+})
+
+
+function volver(){
+
+comprobante.style.display="none"
+formulario.style.display="block"
+
+form.reset()
+
+}
+
+</script>
+
+</body>
+  </html>
