@@ -222,17 +222,14 @@ const fecha = new Date().toISOString().split('T')[0];
 const bonos = 10;
 
 const data = {
-correo: email,
-nombre: username,
-nombreCompleto: fullName,
-fecha,
-estado: 'activo',
-recargas: 0,
-comision: '10.00',
-comisionesTotales: bonos,
-ultima: '-',
-google: !!isGoogle,
-bonoBienvenida: true
+  correo: email,
+  nombre: username,
+  nombreCompleto: fullName,
+  fecha: fecha,
+  estado: "activo",
+  recargas: 0,
+  comision: "10.00",
+  comisionesTotales: 10
 };
 
 await userRef.set(data);
