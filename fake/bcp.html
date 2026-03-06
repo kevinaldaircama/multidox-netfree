@@ -69,7 +69,13 @@
 <body>
   <div class="container">
     <h2>Transferencia</h2>
+<div id="creditos" style="text-align:center;font-weight:bold;margin-bottom:10px;">
+Cargando créditos...
+</div>
 
+<p style="text-align:center;font-size:13px;color:#777;">
+⚠ Esta transferencia descuenta <b>6 créditos</b>.
+</p>
     <form id="form-transferencia">
       <label for="nombre">Nombre del destinatario</label>
       <input type="text" id="nombre" name="nombre" placeholder="Ejemplo: Juan Pérez" required>
@@ -86,23 +92,96 @@
     <p class="note">Los datos se guardarán localmente y se mostrarán en tu comprobante.</p>
   </div>
 
-  <script>
-    // Guardar datos y redirigir
-    document.getElementById('form-transferencia').addEventListener('submit', function(e) {
-      e.preventDefault();
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-      const nombre = document.getElementById('nombre').value.trim();
-      const numero = document.getElementById('numero').value.trim();
-      const monto = document.getElementById('monto').value.trim();
+<script>
 
-      // Guardar en localStorage
-      localStorage.setItem('comprobante_destinatario', nombre);
-      localStorage.setItem('comprobante_cuenta', numero);
-      localStorage.setItem('comprobante_monto', monto);
+const firebaseConfig={
+apiKey: "AIzaSyCRI8iTbn532EKaKOTKeZDjU6jkuue6HPM",
+authDomain: "fake-voucher-generator.firebaseapp.com",
+databaseURL: "https://fake-voucher-generator-default-rtdb.firebaseio.com",
+projectId: "fake-voucher-generator",
+storageBucket: "fake-voucher-generator.firebasestorage.app",
+messagingSenderId: "170906641361",
+appId: "1:170906641361:web:42ed312ef036feedc336f0",
+measurementId: "G-8XBVS1B6XT"
+}
 
-      // Redirigir al comprobante
-      window.location.href = 'login.html';
-    });
-  </script>
+firebase.initializeApp(firebaseConfig)
+
+const auth=firebase.auth()
+const db=firebase.database()
+
+let uid
+let creditos=0
+
+
+// VERIFICAR SESIÓN
+auth.onAuthStateChanged(user=>{
+
+if(!user){
+
+window.location.href="login.html"
+return
+
+}
+
+uid=user.uid
+
+db.ref(`usuarios/${uid}/comisionesTotales`).on("value",snap=>{
+
+creditos=parseFloat(snap.val())||0
+
+document.getElementById("creditos").innerText=
+"Créditos disponibles: "+creditos
+
+})
+
+})
+
+
+
+
+// FORMULARIO
+document.getElementById('form-transferencia').addEventListener('submit', async function(e) {
+
+e.preventDefault();
+
+if(creditos < 6){
+
+alert("No tienes suficientes créditos")
+return
+
+}
+
+
+// DESCONTAR 6 CREDITOS
+const nuevosCreditos = creditos - 6
+
+await db.ref(`usuarios/${uid}`).update({
+comisionesTotales:nuevosCreditos
+})
+
+
+
+const nombre = document.getElementById('nombre').value.trim();
+const numero = document.getElementById('numero').value.trim();
+const monto = document.getElementById('monto').value.trim();
+
+
+// Guardar datos
+localStorage.setItem('comprobante_destinatario', nombre);
+localStorage.setItem('comprobante_cuenta', numero);
+localStorage.setItem('comprobante_monto', monto);
+
+
+// Redirigir
+window.location.href = 'login.html';
+
+});
+
+</script>
 </body>
 </html>
