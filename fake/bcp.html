@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realizar Transferencia</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 400px;
+      background: #fff;
+      margin: 50px auto;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #004b93;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #ff7b00;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      padding: 12px;
+      font-size: 16px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e56d00;
+    }
+
+    .note {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 10px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Transferencia</h2>
+
+    <form id="form-transferencia">
+      <label for="nombre">Nombre del destinatario</label>
+      <input type="text" id="nombre" name="nombre" placeholder="Ejemplo: Juan Pérez" required>
+
+      <label for="numero">Número de cuenta o celular</label>
+      <input type="text" id="numero" name="numero" placeholder="Ejemplo: 987654321 o 123-456789" required>
+
+      <label for="monto">Monto (S/)</label>
+      <input type="number" id="monto" name="monto" min="0.10" step="0.01" placeholder="Ejemplo: 150.00" required>
+
+      <button type="submit">Continuar</button>
+    </form>
+
+    <p class="note">Los datos se guardarán localmente y se mostrarán en tu comprobante.</p>
+  </div>
+
+  <script>
+    // Guardar datos y redirigir
+    document.getElementById('form-transferencia').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const numero = document.getElementById('numero').value.trim();
+      const monto = document.getElementById('monto').value.trim();
+
+      // Guardar en localStorage
+      localStorage.setItem('comprobante_destinatario', nombre);
+      localStorage.setItem('comprobante_cuenta', numero);
+      localStorage.setItem('comprobante_monto', monto);
+
+      // Redirigir al comprobante
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>
